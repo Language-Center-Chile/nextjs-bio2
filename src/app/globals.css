@@ -24,3 +24,127 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: black;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.nav-logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.nav-logo a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.nav-links {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: white;
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+  color: #4CAF50;
+}
+
+.auth-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-login, .btn-logout {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-login {
+  background-color: #4CAF50;
+  color: white !important;
+}
+
+.btn-login:hover {
+  background-color: #45a049;
+}
+
+.btn-logout {
+  background-color: #f44336;
+  color: white !important;
+}
+
+.btn-logout:hover {
+  background-color: #da190b;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 400px; /* altura mínima */
+  height: calc(100vh - 300px); /* altura dinámica basada en la ventana */
+  max-height: 800px; /* altura máxima */
+}
+
+.info-section {
+  
+.info-section {
+  text-align: center;
+  /*background-color: rgb(30, 30, 30);
+  padding: 2.5rem 1.5rem;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);*/
+  transition: transform 0.3s ease;
+}
+}
+
+.image-container {
+  position: relative;
+}
+
+.section-image {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
+
+.image-text {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.6); /* fondo semitransparente */
+  color: white;
+  padding: 0.5rem 1rem;
+  text-align: left;
+}
+
+.image-text h2 {
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.image-text p {
+  font-size: 1rem;
+  line-height: 1.5;
+}
