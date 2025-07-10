@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 const MainSection = () => {
   const sections = [
     {
@@ -35,11 +37,14 @@ const MainSection = () => {
             className="overflow-hidden rounded-xl shadow-md transition-transform duration-300 hover:scale-105"
           >
             <div className="relative bg-[#f0e5c8]"> {/* mismo color de fondo de la imagen */}
-              <img
-                src={section.image}
-                alt={section.alt}
-                className="w-full h-64 object-contain"
-              />
+              <Image
+            src={section.image}
+          alt={section.alt}
+  width={512} // o el ancho real de tu imagen
+  height={256} // o el alto real de tu imagen
+  className="w-full h-64 object-contain"
+/>
+
 
               <div className="absolute bottom-0 left-0 w-full bg-black/50 text-white px-4 py-3">
                 <h3 className="text-lg font-semibold">{section.title}</h3>
