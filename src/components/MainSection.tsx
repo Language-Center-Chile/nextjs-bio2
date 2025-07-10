@@ -1,6 +1,3 @@
-import InfoSection from './ui/InfoSection'
-
-
 const MainSection = () => {
   const sections = [
     {
@@ -30,17 +27,26 @@ const MainSection = () => {
   ]
 
   return (
-    <main className="container mx-auto px-4 py-8">
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+    <main className="bg-neutral-900 mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
         {sections.map((section, index) => (
-          <InfoSection
+          <div
             key={index}
-            image={section.image}
-            alt={section.alt}
-            title={section.title}
-            description={section.description}
-          />
+            className="overflow-hidden rounded-xl shadow-md transition-transform duration-300 hover:scale-105"
+          >
+            <div className="relative bg-[#f0e5c8]"> {/* mismo color de fondo de la imagen */}
+              <img
+                src={section.image}
+                alt={section.alt}
+                className="w-full h-64 object-contain"
+              />
+
+              <div className="absolute bottom-0 left-0 w-full bg-black/50 text-white px-4 py-3">
+                <h3 className="text-lg font-semibold">{section.title}</h3>
+                <p className="text-sm">{section.description}</p>
+              </div>
+            </div>
+          </div>
         ))}
       </div>
     </main>
