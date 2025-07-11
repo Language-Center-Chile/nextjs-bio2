@@ -5,7 +5,7 @@ const FeaturedContent = () => {
   return (
     <section className="py-12">
       <div className="container mx-auto px-4">
-        <span className="inline-block bg-green-600 text-white px-4 py-1 rounded-full text-sm font-medium mb-6">
+        <span className="inline-block bg-green-600 text-white px-4 py-1 rounded-full text-sm font-medium mb-6 ml-32">
           Contenido destacado
         </span>
         
