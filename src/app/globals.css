@@ -1,9 +1,16 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+    --primary: #4caf50;
+    --secondary: #ff6f00;
+    --light-bg: #000000;
+    --dark-bg: rgb(24, 24, 27);
+    --dark-text: rgb(24, 24, 27);
+    --gray: #6b7280;
+    --white:#ffff;
+    --radius: 20px;
+    --shadow: 0 6px 16px rgba(0,0,0,0.08);
+  }
 
 @theme inline {
   --color-background: var(--background);
@@ -20,10 +27,11 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--dark-bg);
+    color: var(--dark-text);
+  }
 
 .navbar {
   display: flex;
@@ -147,4 +155,11 @@ body {
 .image-text p {
   font-size: 1rem;
   line-height: 1.5;
+}
+
+.featured-info {
+  flex: 1;
+  padding: 2rem;
+  background: #dadae8;
+background: linear-gradient(180deg,rgba(218, 218, 232, 1) 3%, rgba(0, 0, 0, 1) 98%, rgba(0, 0, 0, 1) 96%);
 }
