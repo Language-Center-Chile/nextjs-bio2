@@ -19,19 +19,22 @@ const Slider = () => {
   }
 
   return (
-    <header className="relative w-full h-[70vh] overflow-hidden">
+    
+    <header className="relative w-full h-[90vh] overflow-hidden" style={{ boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}>
       <div className="relative h-full w-full">
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-center w-full max-w-4xl px-4">
-          <h1 className="text-5xl font-bold text-white mb-4">
-            <span className="text-green-500">Conectamos personas</span> con la biodiversidad
-          </h1>
-          <p className="text-white text-xl mb-8">Una plataforma sustentable, abierta y humana para el ecosistema verde.</p>
+        <h1 className="text-4xl lg:text-5xl font-bold mb-4 font-poppins" style={{color: "white", textShadow: "2px 2px 4px rgba(0,0,0,0.5)" }}>
+          <span className="text-green-600">Conectamos personas</span> con la biodiversidad
+        </h1>
+        <p className="text-xl font-bold mb-8" style={{ color: "white", textShadow: "2px 2px 4px rgba(0,0,0,0.5)" }}>
+          Una plataforma sustentable, abierta y humana para el ecosistema verde.
+        </p>
           <div className="flex justify-center gap-4">
             <Button href="/marketplace" variant="primary">Explorar</Button>
             <Button href="/login" variant="secondary">Ingresar</Button>
           </div>
         </div>
-        <div className="relative h-full w-full">
+        <div className="relative h-full w-full"style={{ opacity: "0.4" }}>
           {[1, 2, 3].map((num, index) => (
             <div
               key={num}
