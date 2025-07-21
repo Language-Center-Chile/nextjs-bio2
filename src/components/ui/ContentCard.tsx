@@ -11,7 +11,15 @@ interface ContentCardProps {
 
 const ContentCard = ({ image, alt, title, description, link }: ContentCardProps) => {
   return (
+    <div className="bg-grey rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+          <span className="inline-block bg-green-700 text-white px-4 py-1 rounded-full text-sm font-semibold shadow">
+            Noticia
+          </span>
+          <span className="inline-block bg-white text-green-700 px-4 py-1 rounded-full text-sm font-semibold border border-green-700 shadow">
+            Medioambiente
+          </span>
     <article className="bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+      
       <div className="relative aspect-video w-full">
         <Image 
           src={image} 
@@ -32,6 +40,7 @@ const ContentCard = ({ image, alt, title, description, link }: ContentCardProps)
         </Link>
       </div>
     </article>
+    </div>
   )
 }
 
