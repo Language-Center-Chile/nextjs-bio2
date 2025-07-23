@@ -9,12 +9,12 @@ export default function NavbarLogo() {
           alt="Logo Biodiversidad.cl"
           className="h-8 md:h-12 lg:h-16 w-auto max-w-full"
         />
-        <img
+{/*         <img
           src="/assets/Isotipo.png"
           alt="Isotipo Biodiversidad.cl"
           className="h-8 md:h-12 lg:h-16 w-auto max-w-full"
         />
-
+ */}
       </span>
     </div>  
   );
