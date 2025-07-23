@@ -35,7 +35,7 @@ const Slider = () => {
           </div>
         </div>
         <div className="relative h-full w-full"style={{ opacity: "0.4" }}>
-          {[1, 2, 3].map((num, index) => (
+          {[1, 2, 3,4,5,6,7].map((num, index) => (
             <div
               key={num}
               className={`absolute inset-0 transition-opacity duration-500 ${currentSlide === index ? 'opacity-100' : 'opacity-0'}`}
@@ -51,7 +51,7 @@ const Slider = () => {
           ))}
           
           <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex gap-3 z-10">
-            {[0, 1, 2].map((num) => (
+            {[0, 1, 2,3,4,5,6].map((num) => (
               <button
                 key={num}
                 className={`w-3 h-3 rounded-full transition-colors ${currentSlide === num ? 'bg-white' : 'bg-white/50 hover:bg-white/75'}`}

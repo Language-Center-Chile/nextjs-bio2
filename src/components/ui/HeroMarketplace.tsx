@@ -2,7 +2,7 @@
 
 const HeroMarketplace = () => {
   return (
-    <section className="relative bg-[url('/assets/news-2.jpg')] bg-cover bg-center min-h-[400px] flex items-center justify-center text-center">
+    <section className="relative bg-[url('/assets/Plantas.jpg')] bg-cover bg-center min-h-[400px] flex items-center justify-center text-center">
   <div className="bg-neutral-900/50 backdrop-blur-sm p-8 rounded-2xl text-white max-w-3xl mx-auto shadow-xl">
 
     <h1 className="text-3xl md:text-5xl font-bold mb-4">Conecta con la naturaleza</h1>
