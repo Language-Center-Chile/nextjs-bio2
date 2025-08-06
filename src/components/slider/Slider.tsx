@@ -8,7 +8,7 @@ const Slider = () => {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % 3)
+      setCurrentSlide((prev) => (prev + 1) % 7)
     }, 5000)
 
     return () => clearInterval(timer)
