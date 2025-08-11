@@ -8,6 +8,7 @@ export const NavLinks = () => {
     { href: '/educacion', text: 'Educación' },
     { href: '/campanas', text: 'Campañas' },
     { href: '/membresias', text: 'Membresías' },
+    
   ]
 
   return (
