@@ -1,6 +1,7 @@
 'use client'
 
 import ProductSkeleton from './ProductSkeleton'
+import ProtectedAction from '../ProtectedAction'
 
 interface Product {
   _id: string

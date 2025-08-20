@@ -1,6 +1,3 @@
-import HeroMarketplace from '@/components/ui/HeroMarketplace'
-import SidebarFilters from '@/components/ui/SidebarFilters'
-import ProductGrid from '@/components/ui/ProductGrid'
 import dbConnect from '@/lib/mongodb'
 import Product from '@/models/Product'
 import User from '@/models/User' // 🔧 Importar User para el populate
@@ -135,7 +132,6 @@ async function getProducts(searchParams: Awaited<MarketplacePageProps['searchPar
 export default async function MarketplacePage({ searchParams }: MarketplacePageProps) {
   const resolvedSearchParams = await searchParams
   const { products, pagination } = await getProducts(resolvedSearchParams)
-
   return (
     <div className="bg-neutral-900 text-white min-h-screen">
       <HeroMarketplace />
