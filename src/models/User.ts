@@ -6,6 +6,8 @@ export interface IUser extends mongoose.Document {
   role: 'user' | 'consultant' | 'admin'
   avatar?: string
   bio?: string
+  address?: string
+  postalCode?: string
   createdAt: Date
   updatedAt: Date
 }
@@ -33,6 +35,12 @@ const UserSchema = new mongoose.Schema<IUser>({
   bio: {
     type: String,
     maxlength: [500, 'La biografía no puede ser más larga de 500 caracteres']
+  },
+  address: {
+    type: String
+  },
+  postalCode: {
+    type: String
   }
 }, {
   timestamps: true

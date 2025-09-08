@@ -16,6 +16,7 @@ export interface IProduct extends mongoose.Document {
     }
   }
   isActive: boolean
+  isApproved: boolean
   createdAt: Date
   updatedAt: Date
 }
@@ -66,13 +67,17 @@ const ProductSchema = new mongoose.Schema<IProduct>({
   isActive: {
     type: Boolean,
     default: true
+  },
+  isApproved: {
+    type: Boolean,
+    default: false
   }
 }, {
   timestamps: true
 })
 
 // Índices para mejorar las consultas
-ProductSchema.index({ category: 1, isActive: 1 })
+ProductSchema.index({ category: 1, isActive: 1, isApproved: 1 })
 ProductSchema.index({ 'location.country': 1, 'location.city': 1 })
 ProductSchema.index({ createdAt: -1 })
 

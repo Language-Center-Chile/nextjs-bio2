@@ -7,7 +7,6 @@ export async function POST(request: NextRequest) {
   try {
     await dbConnect()
 
-    // Crear usuarios de ejemplo
     const users = await User.insertMany([
       {
         name: "María González",

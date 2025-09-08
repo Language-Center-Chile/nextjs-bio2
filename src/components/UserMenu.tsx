@@ -69,8 +69,8 @@ export default function UserMenu() {
           <div className="my-2 h-px bg-white/10" />
 
           {/* Opciones básicas (visual por ahora) */}
-          <MenuItem href="#" label="Editar nombre" />
-          <MenuItem href="#" label="Cambiar foto" />
+          <MenuItem href="/perfil" label="Perfil" />
+          <MenuItem href="/perfil#avatar" label="Cambiar foto" />
           <MenuItem href="/mis-publicaciones" label="Mis publicaciones" />
           <MenuItem href="/membresia" label="Mi membresía" />
 

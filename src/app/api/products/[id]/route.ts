@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/mongodb'
 import Product from '@/models/Product'
+import User from '@/models/User'
 
 // GET /api/products/[id] - Obtener producto específico
 export async function GET(
@@ -10,15 +11,19 @@ export async function GET(
   try {
     await dbConnect()
 
-    const product = await Product.findById(params.id)
-      .populate('seller', 'name email avatar bio')
-      .lean()
+    const product = await Product.findById(params.id).lean()
 
     if (!product) {
       return NextResponse.json(
         { error: 'Producto no encontrado' }, 
         { status: 404 }
       )
+    }
+
+    // populate seller manually
+    if ((product as any).seller) {
+      const seller = await User.findById((product as any).seller).select('name email avatar bio')
+      ;(product as any).seller = seller
     }
 
     return NextResponse.json(product)
