@@ -63,16 +63,44 @@ export default function LoginPage() {
     setError('')
 
     try {
-      // Aquí implementarías la lógica de autenticación
-      console.log('Login attempt:', { email, password })
+      // Conectar a MongoDB y verificar credenciales
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
       
-      // Simulación de login
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al iniciar sesión');
+      }
+      
+      // Mostrar datos almacenados en la sesión
+      console.log('Datos almacenados en sesión:', {
+        usuario: data.user,
+        timestamp: new Date().toISOString(),
+        estado: 'autenticado',
+        tipo: 'email/password'
+      });
+      
+      // Almacenar datos del usuario en localStorage para que UserMenu pueda accederlos
+      localStorage.setItem('userSession', JSON.stringify({
+        user: {
+          name: data.user.name || email.split('@')[0],
+          email: data.user.email || email,
+          image: data.user.avatar || null,
+          role: data.user.role || 'user'
+        },
+        expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 horas
+      }));
       
       // Redirigir después del login exitoso
       router.push('/')
-    } catch (err) {
-      setError('Credenciales inválidas')
+    } catch (err: any) {
+      setError(err.message || 'Credenciales inválidas')
     } finally {
       setIsLoading(false)
     }
