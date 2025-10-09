@@ -10,8 +10,29 @@ import Link from 'next/link';
 export default function UserMenu() {
   const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
+  const [localSession, setLocalSession] = useState<any>(null);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  // Cargar datos de localStorage al montar el componente
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const storedSession = localStorage.getItem('userSession');
+        if (storedSession) {
+          const parsedSession = JSON.parse(storedSession);
+          // Verificar si la sesión ha expirado
+          if (new Date(parsedSession.expires) > new Date()) {
+            setLocalSession(parsedSession);
+          } else {
+            localStorage.removeItem('userSession');
+          }
+        }
+      } catch (error) {
+        console.error('Error al cargar la sesión local:', error);
+      }
+    }
+  }, []);
 
   // Cierra al hacer click fuera
   useEffect(() => {
@@ -25,8 +46,11 @@ export default function UserMenu() {
 
   if (status === 'loading') return null;
 
+  // Usar sesión de next-auth o la sesión local
+  const activeSession = session || localSession;
+
   // Sin sesión → botón que navega a /login
-  if (!session) {
+  if (!activeSession) {
     return (
       <button
         onClick={() => router.push('/login')}
@@ -37,8 +61,24 @@ export default function UserMenu() {
     );
   }
 
-  const name = session.user?.name ?? 'Usuario';
-  const image = session.user?.image ?? null;
+  const name = activeSession.user?.name ?? 'Usuario';
+  const image = activeSession.user?.image ?? null;
+
+  // Función para cerrar sesión
+  const handleSignOut = () => {
+    // Limpiar completamente localStorage
+    localStorage.removeItem('userSession');
+    // Limpiar también el estado local
+    setLocalSession(null);
+    // Si hay sesión de next-auth, cerrarla también
+    if (session) {
+      signOut({ callbackUrl: '/' });
+    } else {
+      // Si solo hay sesión local, redirigir a inicio
+      router.push('/');
+      router.refresh();
+    }
+  };
 
   return (
     <div ref={ref} className="relative">
@@ -62,7 +102,9 @@ export default function UserMenu() {
             <UserAvatar src={image} name={name} size={44} />
             <div className="min-w-0">
               <div className="font-semibold truncate">{name}</div>
-              <div className="text-xs text-white/60 truncate">Colaborador</div>
+              <div className="text-xs text-white/60 truncate">
+                {activeSession.user?.role === 'consultant' ? 'Consultor' : 'Colaborador'}
+              </div>
             </div>
           </div>
 
@@ -77,7 +119,7 @@ export default function UserMenu() {
           <div className="my-2 h-px bg-white/10" />
 
           <button
-            onClick={() => signOut({ callbackUrl: '/' })}
+            onClick={handleSignOut}
             className="mt-3 w-full rounded-lg px-4 py-2
                        bg-neutral-800 hover:bg-neutral-700
                        text-white font-semibold
