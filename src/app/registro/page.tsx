@@ -9,13 +9,10 @@ import { signIn } from 'next-auth/react'
 const AuthBackground = () => {
   const [currentImage, setCurrentImage] = useState(0)
   const images = [
+    '/assets/slider/biodiversidad0.jpg',
     '/assets/slider/biodiversidad1.jpg',
     '/assets/slider/biodiversidad2.jpg',
-    '/assets/slider/biodiversidad3.jpg',
-    '/assets/slider/biodiversidad4.jpg',
-    '/assets/slider/biodiversidad5.jpg',
-    '/assets/slider/biodiversidad6.jpg',
-    '/assets/slider/biodiversidad7.jpg'
+    '/assets/slider/biodiversidad3.jpg'
   ]
 
   useEffect(() => {

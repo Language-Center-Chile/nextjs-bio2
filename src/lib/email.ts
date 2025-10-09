@@ -46,6 +46,10 @@ export async function sendAdminNotification({ subject, html, text }: { subject: 
   }
 }
 
+export function isSmtpConfigured() {
+  return !!getTransporter()
+}
+
 export async function sendAuthorNotification({ to, subject, html, text }: { to: string; subject: string; html?: string; text?: string }) {
   const transporter = getTransporter()
   if (!transporter) {
