@@ -1,41 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/lib/mongodb'
-import User from '@/models/User'
-import { getToken } from 'next-auth/jwt'
-import { MongoClient } from 'mongodb'
+import { cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
 
 export async function POST(req: NextRequest) {
   try {
-    // DEBUG: mostrar cookies y token para investigar 401
-    console.log('[api/user/profile] cookies header:', req.headers.get('cookie'))
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabase = url && key ? createServerClient(url, key, {
+      cookies: {
+        async getAll() {
+          return (await cookies()).getAll()
+        },
+        async setAll(cookiesToSet) {
+          const store = await cookies()
+          cookiesToSet.forEach(({ name, value, options }) => store.set(name, value, options))
+        },
+      },
+    }) : null
 
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
-    console.log('[api/user/profile] getToken result:', token)
-
-    let userId: string | undefined = undefined
-    if (token && token.sub) {
-      userId = token.sub
-    } else {
-      // Fallback: si se usa MongoDB adapter, buscar la sesión por session-token en la colección `sessions`
-      const cookieHeader = req.headers.get('cookie') || ''
-      const match = cookieHeader.match(/(?:__Secure-)?next-auth.session-token=([^;\s]+)/) || cookieHeader.match(/next-auth.session-token=([^;\s]+)/)
-      const sessionToken = match ? decodeURIComponent(match[1]) : null
-      console.log('[api/user/profile] extracted sessionToken:', sessionToken)
-
-      if (sessionToken && process.env.MONGODB_URI) {
-        const client = new MongoClient(process.env.MONGODB_URI)
-        await client.connect()
-        try {
-          const db = client.db()
-          const sessionsCol = db.collection('sessions')
-          const sess = await sessionsCol.findOne({ sessionToken })
-          console.log('[api/user/profile] session from db:', sess)
-          if (sess && (sess as any).userId) userId = String((sess as any).userId)
-        } finally {
-          await client.close()
-        }
-      }
-    }
+    const { data } = supabase ? await supabase.auth.getUser() : { data: { user: null } }
+    const userId = data.user?.id
 
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -43,22 +27,10 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json()
     const { name, address, postalCode, bio } = body
-
-    await dbConnect()
-
-    const updated = await User.findByIdAndUpdate(userId, {
-      $set: {
-        name,
-        address,
-        postalCode,
-        bio
-      }
-    }, { new: true })
-
-    if (!updated) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    const upd = await supabase!.auth.updateUser({ data: { name, address, postalCode, bio } })
+    if (upd.error) {
+      return NextResponse.json({ error: 'Error updating profile' }, { status: 500 })
     }
-
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('Error updating profile:', err)

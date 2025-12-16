@@ -1,25 +1,44 @@
 import HeroEducacion from '@/components/HeroEducacion';
 import CompartirRecursoSection from '@/components/CompartirRecursoSection';
-import dbConnect from '@/lib/mongodb'
-import Resource from '@/models/Resource'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
 export default async function EducacionPage() {
   let recursos: any[] = []
 
   try {
-    await dbConnect()
-    recursos = await Resource.find({ isActive: true }).sort({ createdAt: -1 }).lean()
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabase = url && key ? createServerClient(url, key, {
+      cookies: {
+        getAll() {
+          return cookies().getAll()
+        },
+      setAll(cookiesToSet) {
+        const store = cookies()
+        cookiesToSet.forEach(({ name, value, options }) => store.set(name, value, options))
+      },
+      },
+    }) : null
+    if (!supabase) throw new Error('Supabase no configurado')
+    const { data, error } = await supabase
+      .from('resources')
+      .select('*')
+      .eq('isActive', true)
+      .order('created_at', { ascending: false })
+    if (error) throw error
+    recursos = data || []
   } catch (err) {
     console.error('Error fetching resources:', err)
   }
 
   // serializar
   const serialized = recursos.map(r => ({
-    _id: r._id.toString(),
-    title: r.title,
-    description: r.description,
-    image: r.image,
-    link: r.link
+    _id: String(r.id ?? Math.random()),
+    title: r.title ?? 'Recurso',
+    description: r.description ?? '',
+    image: r.image ?? '/assets/featured/chakana.jpg',
+    link: r.link ?? '#'
   }))
 
   return (

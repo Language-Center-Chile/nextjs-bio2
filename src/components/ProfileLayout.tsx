@@ -1,19 +1,34 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ProfileForm from '@/components/ProfileForm'
-import Link from 'next/link'
-import { useSession } from 'next-auth/react'
 import ProductForm from '@/components/ProductForm'
 import JobOfferForm from '@/components/JobOfferForm'
 import ConsultantProfileForm from '@/components/ConsultantProfileForm'
+import { supabaseClient } from '@/lib/supabaseClient'
+import type { User } from '@supabase/supabase-js'
 
 export default function ProfileLayout() {
-  const { data: session } = useSession()
+  const [user, setUser] = useState<User | null>(null)
   const [editing, setEditing] = useState(false)
   const [showProductForm, setShowProductForm] = useState(false)
   const [showJobOfferForm, setShowJobOfferForm] = useState(false)
   const [showConsultantForm, setShowConsultantForm] = useState(false)
+
+  useEffect(() => {
+    const supabase = supabaseClient
+    let mounted = true
+    const init = async () => {
+      if (!supabase) return
+      const { data } = await supabase.auth.getUser()
+      if (mounted) setUser(data.user)
+      supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null)
+      })
+    }
+    init()
+    return () => { mounted = false }
+  }, [])
 
   function handleEditClick() {
     const next = !editing
@@ -60,15 +75,15 @@ export default function ProfileLayout() {
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
         <aside className="bg-neutral-800 p-4 rounded-lg">
           <div className="flex flex-col items-center gap-3">
-            {session?.user?.image ? (
+            {user?.user_metadata?.avatar_url ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={session.user.image} alt="avatar" className="w-24 h-24 rounded-full object-cover" />
+              <img src={user.user_metadata.avatar_url} alt="avatar" className="w-24 h-24 rounded-full object-cover" />
             ) : (
               <div className="w-24 h-24 rounded-full bg-neutral-700 grid place-items-center text-white">U</div>
             )}
 
-            <div className="text-lg font-semibold">{session?.user?.name}</div>
-            <div className="text-sm text-gray-400">{session?.user?.email}</div>
+            <div className="text-lg font-semibold">{(user?.user_metadata?.name || user?.user_metadata?.full_name || user?.email?.split('@')[0] || '')}</div>
+            <div className="text-sm text-gray-400">{user?.email}</div>
           </div>
 
           <div className="mt-6 space-y-3">
@@ -130,3 +145,4 @@ export default function ProfileLayout() {
     </div>
   )
 }
+

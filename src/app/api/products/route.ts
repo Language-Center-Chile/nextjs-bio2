@@ -1,74 +1,63 @@
 import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/lib/mongodb'
-import Product from '@/models/Product'
-import User from '@/models/User'
-import { getToken } from 'next-auth/jwt'
-import { MongoClient } from 'mongodb'
+import { cookies } from 'next/headers'
 import { sendAdminNotification, sendAuthorNotification } from '@/lib/email'
+import { createServerClient } from '@supabase/ssr'
 
 // POST /api/products - Crear nuevo producto
 export async function POST(request: NextRequest) {
   try {
-    // DEBUG: imprimir cabecera cookie para diagnosticar
-    console.log('[api/products] cookies header:', request.headers.get('cookie'))
-
-    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
-    console.log('[api/products] getToken result:', token)
-
-    let userId: string | undefined = undefined
-    if (token && token.sub) {
-      userId = token.sub
-    } else {
-      // fallback: buscar sessionToken en cookies y leer la colección sessions
-      const cookieHeader = request.headers.get('cookie') || ''
-      const match = cookieHeader.match(/(?:__Secure-)?next-auth.session-token=([^;\s]+)/) || cookieHeader.match(/next-auth.session-token=([^;\s]+)/)
-      const sessionToken = match ? decodeURIComponent(match[1]) : null
-      console.log('[api/products] extracted sessionToken:', sessionToken)
-
-      if (sessionToken && process.env.MONGODB_URI) {
-        const client = new MongoClient(process.env.MONGODB_URI)
-        await client.connect()
-        try {
-          const db = client.db()
-          const sessionsCol = db.collection('sessions')
-          const sess = await sessionsCol.findOne({ sessionToken })
-          console.log('[api/products] session from db:', sess)
-          if (sess && (sess as any).userId) userId = String((sess as any).userId)
-        } finally {
-          await client.close()
-        }
-      }
-    }
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabase = url && key ? createServerClient(url, key, {
+      cookies: {
+        getAll() {
+          return cookies().getAll()
+        },
+        setAll(cookiesToSet) {
+          const store = cookies()
+          cookiesToSet.forEach(({ name, value, options }) => store.set(name, value, options))
+        },
+      },
+    }) : null
+    const { data } = supabase ? await supabase.auth.getUser() : { data: { user: null } }
+    const userId = data.user?.id
 
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    await dbConnect()
-
     const body = await request.json()
-    // Asegurar seller desde token / fallback
-    const productData = { ...body, seller: userId, isApproved: false }
-
-    const product = new Product(productData)
-    await product.save()
-
-    // Poblar el seller antes de retornar
-    // Evitar populate por posibles diferencias de instancia mongoose en tiempo de ejecución.
-    const sellerDoc = await User.findById(userId).select('name email avatar')
-    const productObj = product.toObject()
-    productObj.seller = sellerDoc
+    const sellerName = (data.user?.user_metadata?.name || data.user?.user_metadata?.full_name || data.user?.email?.split('@')[0] || 'Usuario')
+    const sellerAvatar = (data.user?.user_metadata?.avatar_url as string) || undefined
+    const record = {
+      title: body.title,
+      description: body.description,
+      price: Number(body.price ?? 0),
+      category: body.category,
+      images: Array.isArray(body.images) ? body.images : [],
+      seller: userId,
+      seller_name: sellerName,
+      seller_avatar: sellerAvatar,
+      country: body.location?.country ?? null,
+      city: body.location?.city ?? null,
+      isActive: true,
+      isApproved: false,
+    }
+    const insert = await supabase!.from('products').insert([record]).select('id,title')
+    if (insert.error) {
+      return NextResponse.json({ error: 'DB insert error', details: insert.error.message }, { status: 500 })
+    }
+    const inserted = (insert.data || [])[0]
 
     // notify admins
-    const base = process.env.NEXTAUTH_URL || ''
+    const base = request.nextUrl.origin
     const secretParam = process.env.MODERATION_SECRET ? `&secret=${encodeURIComponent(process.env.MODERATION_SECRET)}` : ''
-    const approveUrl = `${base}/api/moderation/approve?type=product&id=${product._id}${secretParam}`
-    await sendAdminNotification({ subject: `Nuevo producto a revisar: ${product.title}`, text: `Revisar: ${approveUrl}` })
+    const approveUrl = `${base}/api/moderation/approve?type=product&id=${inserted.id}${secretParam}`
+    await sendAdminNotification({ subject: `Nuevo producto a revisar: ${record.title}`, text: `Revisar: ${approveUrl}` })
     // optionally notify author
-    // If token included email, notify
-    if (token && (token as any).email) {
-      await sendAuthorNotification({ to: (token as any).email, subject: 'Tu producto fue enviado para revisión', text: `Gracias, tu producto '${product.title}' está pendiente de aprobación.` })
+    if (data.user?.email) {
+      await sendAuthorNotification({ to: data.user.email, subject: 'Tu producto fue enviado para revisión', text: `Gracias, tu producto '${record.title}' está pendiente de aprobación.` })
     }
 
-    return NextResponse.json(product, { status: 201 })
+    return NextResponse.json({ ok: true, id: inserted.id }, { status: 201 })
 
   } catch (error: any) {
     console.error('Error creating product:', error)

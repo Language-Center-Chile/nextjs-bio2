@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/lib/mongodb'
-import Product from '@/models/Product'
-import Offer from '@/models/Offer'
-import Consultant from '@/models/Consultant'
-import User from '@/models/User'
+import { createServerClient } from '@supabase/ssr'
 import { sendAuthorNotification } from '@/lib/email'
+import { cookies } from 'next/headers'
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,45 +11,36 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    await dbConnect()
     const type = url.searchParams.get('type')
     const id = url.searchParams.get('id')
     if (!type || !id) return NextResponse.json({ error: 'Missing params' }, { status: 400 })
 
-    let model: any = null
-    if (type === 'product') model = Product
-    else if (type === 'offer') model = Offer
-    else if (type === 'consultant') model = Consultant
-    else return NextResponse.json({ error: 'Unknown type' }, { status: 400 })
+    const supaUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supaKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabase = createServerClient(supaUrl!, supaKey!, {
+      cookies: {
+        async getAll() {
+          return (await cookies()).getAll()
+        },
+        async setAll(cookiesToSet) {
+          const store = await cookies()
+          cookiesToSet.forEach(({ name, value, options }) => store.set(name, value, options))
+        },
+      },
+    })
 
-    const doc = await model.findById(id)
-    if (!doc) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    const table = type === 'product' ? 'products' : type === 'offer' ? 'offers' : type === 'consultant' ? 'consultants' : null
+    if (!table) return NextResponse.json({ error: 'Unknown type' }, { status: 400 })
 
-    doc.isApproved = true
-    await doc.save()
+    const upd = await supabase.from(table).update({ isApproved: true }).eq('id', id).select('*').single()
+    if (upd.error) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    const doc = upd.data
 
     // notify author if possible
     let authorEmail = null
-    if (type === 'product') {
-      // seller is an ObjectId
-      const sellerId = (doc as any).seller
-      if (sellerId) {
-        const seller = await User.findById(sellerId).select('email name')
-        authorEmail = seller?.email
-      }
-    } else if (type === 'offer') {
-      const authorId = (doc as any).author
-      if (authorId) {
-        const author = await User.findById(authorId).select('email')
-        authorEmail = author?.email
-      }
-    } else if (type === 'consultant') {
-      const userId = (doc as any).user
-      if (userId) {
-        const user = await User.findById(userId).select('email')
-        authorEmail = user?.email
-      }
-    }
+    if (type === 'product') authorEmail = (doc as any).seller_email ?? null
+    else if (type === 'offer') authorEmail = (doc as any).author_email ?? null
+    else if (type === 'consultant') authorEmail = null
 
     if (authorEmail) {
       await sendAuthorNotification({ to: authorEmail, subject: 'Tu publicación fue aprobada', text: `Tu ${type} ha sido aprobado y ya es visible en la plataforma.` })

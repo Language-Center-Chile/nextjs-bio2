@@ -1,10 +1,10 @@
-'use client'
+ 'use client'
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { signIn, getSession } from 'next-auth/react'
+import { supabaseClient } from '@/lib/supabaseClient'
 
 const AuthBackground = () => {
   const [currentImage, setCurrentImage] = useState(0)
@@ -51,6 +51,7 @@ const AuthBackground = () => {
 }
 
 export default function LoginPage() {
+  const supabase = supabaseClient
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -63,41 +64,9 @@ export default function LoginPage() {
     setError('')
 
     try {
-      // Conectar a MongoDB y verificar credenciales
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al iniciar sesión');
-      }
-      
-      // Mostrar datos almacenados en la sesión
-      console.log('Datos almacenados en sesión:', {
-        usuario: data.user,
-        timestamp: new Date().toISOString(),
-        estado: 'autenticado',
-        tipo: 'email/password'
-      });
-      
-      // Almacenar datos del usuario en localStorage para que UserMenu pueda accederlos
-      localStorage.setItem('userSession', JSON.stringify({
-        user: {
-          name: data.user.name || email.split('@')[0],
-          email: data.user.email || email,
-          image: data.user.avatar || null,
-          role: data.user.role || 'user'
-        },
-        expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 horas
-      }));
-      
-      // Redirigir después del login exitoso
+      if (!supabase) throw new Error('Autenticación no disponible')
+      const { error: signError } = await supabase.auth.signInWithPassword({ email, password })
+      if (signError) throw signError
       router.push('/')
     } catch (err: any) {
       setError(err.message || 'Credenciales inválidas')
@@ -109,12 +78,11 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true)
-      await signIn('google', { 
-        callbackUrl: '/',
-        redirect: false 
-      })
-    } catch (error) {
-      setError('Error al iniciar sesión con Google')
+      if (!supabase) throw new Error('Autenticación no disponible')
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })
+      if (oauthError) throw oauthError
+    } catch (error: any) {
+      setError(error.message || 'Error al iniciar sesión con Google')
     } finally {
       setIsLoading(false)
     }

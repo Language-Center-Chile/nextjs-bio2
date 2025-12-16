@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/lib/mongodb'
-import Product from '@/models/Product'
-import User from '@/models/User'
+import { cookies } from 'next/headers'
+import { createServerClient } from '@supabase/ssr'
 
 // GET /api/products/[id] - Obtener producto específico
 export async function GET(
@@ -9,24 +8,23 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    await dbConnect()
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabase = url && key ? createServerClient(url, key, {
+      cookies: {
 
-    const product = await Product.findById(params.id).lean()
-
-    if (!product) {
-      return NextResponse.json(
-        { error: 'Producto no encontrado' }, 
-        { status: 404 }
-      )
-    }
-
-    // populate seller manually
-    if ((product as any).seller) {
-      const seller = await User.findById((product as any).seller).select('name email avatar bio')
-      ;(product as any).seller = seller
-    }
-
-    return NextResponse.json(product)
+        async getAll() {
+          return (await cookies()).getAll()
+        },
+        async setAll(cookiesToSet) {
+          const store = await cookies()
+          cookiesToSet.forEach(({ name, value, options }) => store.set(name, value, options))
+        },
+      },
+    }) : null
+    const { data, error } = await supabase!.from('products').select('*').eq('id', params.id).single()
+    if (error) return NextResponse.json({ error: 'Producto no encontrado' }, { status: 404 })
+    return NextResponse.json(data)
 
   } catch (error) {
     console.error('Error fetching product:', error)
@@ -43,35 +41,27 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    await dbConnect()
-
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabase = url && key ? createServerClient(url, key, {
+      cookies: {
+        async getAll() {
+          return (await cookies()).getAll()
+        },
+        async setAll(cookiesToSet) {
+          const store = await cookies()
+          cookiesToSet.forEach(({ name, value, options }) => store.set(name, value, options))
+        },
+      },
+    }) : null
     const body = await request.json()
-    
-    const product = await Product.findByIdAndUpdate(
-      params.id,
-      body,
-      { new: true, runValidators: true }
-    ).populate('seller', 'name email avatar')
-
-    if (!product) {
-      return NextResponse.json(
-        { error: 'Producto no encontrado' }, 
-        { status: 404 }
-      )
-    }
-
-    return NextResponse.json(product)
+    const update = await supabase!.from('products').update(body).eq('id', params.id).select('*').single()
+    if (update.error) return NextResponse.json({ error: 'Producto no encontrado' }, { status: 404 })
+    return NextResponse.json(update.data)
 
   } catch (error: any) {
     console.error('Error updating product:', error)
     
-    if (error.name === 'ValidationError') {
-      return NextResponse.json(
-        { error: 'Datos de producto inválidos', details: error.errors }, 
-        { status: 400 }
-      )
-    }
-
     return NextResponse.json(
       { error: 'Error interno del servidor' }, 
       { status: 500 }
@@ -85,17 +75,21 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await dbConnect()
-
-    const product = await Product.findByIdAndDelete(params.id)
-
-    if (!product) {
-      return NextResponse.json(
-        { error: 'Producto no encontrado' }, 
-        { status: 404 }
-      )
-    }
-
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabase = url && key ? createServerClient(url, key, {
+      cookies: {
+        async getAll() {
+          return (await cookies()).getAll()
+        },
+        async setAll(cookiesToSet) {
+          const store = await cookies()
+          cookiesToSet.forEach(({ name, value, options }) => store.set(name, value, options))
+        },
+      },
+    }) : null
+    const del = await supabase!.from('products').delete().eq('id', params.id)
+    if (del.error) return NextResponse.json({ error: 'Producto no encontrado' }, { status: 404 })
     return NextResponse.json({ message: 'Producto eliminado exitosamente' })
 
   } catch (error) {

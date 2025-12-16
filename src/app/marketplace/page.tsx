@@ -1,9 +1,8 @@
 import HeroMarketplace from '@/components/ui/HeroMarketplace'
 import ProductGrid from '@/components/ui/ProductGrid'
 import SidebarFilters from '@/components/ui/SidebarFilters'
-import dbConnect from '@/lib/mongodb'
-import Product from '@/models/Product'
-import User from '@/models/User' // 🔧 Importar User para el populate
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
 interface ProductType {
   _id: string
@@ -36,12 +35,20 @@ interface MarketplacePageProps {
 
 async function getProducts(searchParams: Awaited<MarketplacePageProps['searchParams']>) {
   try {
-    await dbConnect()
-
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Aplicando delay de 3 segundos para ver el loading...')
-      await new Promise(resolve => setTimeout(resolve, 3000))
-    }
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabase = url && key ? createServerClient(url, key, {
+      cookies: {
+        async getAll() {
+          return (await cookies()).getAll()
+        },
+      async setAll(cookiesToSet) {
+        const store = await cookies()
+        cookiesToSet.forEach(({ name, value, options }) => store.set(name, value, options))
+      },
+      },
+    }) : null
+    if (!supabase) throw new Error('Supabase no configurado')
 
     const page = parseInt(searchParams.page || '1')
     const limit = 12
@@ -50,60 +57,50 @@ async function getProducts(searchParams: Awaited<MarketplacePageProps['searchPar
     const country = searchParams.country
     const city = searchParams.city
 
-    const filters: any = { isActive: true }
-    
+    const from = (page - 1) * limit
+    const to = from + limit - 1
+
+    let query = supabase
+      .from('products')
+      .select('*', { count: 'exact' })
+      .eq('isActive', true)
+      .order('created_at', { ascending: false })
+
     if (category && category !== 'all') {
-      filters.category = category
+      query = query.eq('category', category)
     }
-    
     if (search) {
-      filters.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
-      ]
+      query = query.or(`title.ilike.%${search}%,description.ilike.%${search}%`)
     }
-    
-    if (country) filters['location.country'] = country
-    if (city) filters['location.city'] = city
+    if (country) {
+      query = query.eq('country', country)
+    }
+    if (city) {
+      query = query.eq('city', city)
+    }
 
-    const skip = (page - 1) * limit
-
-    const products = await Product.find(filters)
-      .populate({
-        path: 'seller',
-        select: 'name avatar',
-        model: User 
-      })
-      .select('-__v') 
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean()
-
-    const totalProducts = await Product.countDocuments(filters)
+    const { data, count, error } = await query.range(from, to)
+    if (error) throw error
+    const totalProducts = count || 0
     const totalPages = Math.ceil(totalProducts / limit)
 
-    const serializedProducts = products.map((product: any) => ({
-      _id: product._id.toString(),
-      title: product.title,
-      description: product.description,
-      price: product.price,
-      category: product.category,
-      images: product.images || [],
-      seller: product.seller ? {
-        _id: product.seller._id.toString(),
-        name: product.seller.name,
-        avatar: product.seller.avatar
-      } : {
-        _id: 'unknown',
-        name: 'Usuario no disponible',
-        avatar: undefined
+    const serializedProducts = (data || []).map((product: any) => ({
+      _id: String(product.id ?? Math.random()),
+      title: product.title ?? 'Producto',
+      description: product.description ?? '',
+      price: Number(product.price ?? 0),
+      category: product.category ?? 'otros',
+      images: Array.isArray(product.images) ? product.images : [],
+      seller: {
+        _id: String(product.seller ?? 'unknown'),
+        name: product.seller_name ?? 'Usuario',
+        avatar: product.seller_avatar ?? undefined
       },
       location: {
-        country: product.location?.country || 'No especificado',
-        city: product.location?.city || 'No especificado'
+        country: product.country ?? 'No especificado',
+        city: product.city ?? 'No especificado'
       },
-      createdAt: product.createdAt ? product.createdAt.toISOString() : new Date().toISOString()
+      createdAt: product.created_at ? new Date(product.created_at).toISOString() : new Date().toISOString()
     }))
 
     return {

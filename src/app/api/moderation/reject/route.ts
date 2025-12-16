@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/lib/mongodb'
-import Product from '@/models/Product'
-import Offer from '@/models/Offer'
-import Consultant from '@/models/Consultant'
-    import User from '@/models/User'
+import { createServerClient } from '@supabase/ssr'
 import { sendAuthorNotification } from '@/lib/email'
+import { cookies } from 'next/headers'
 
 export async function POST(request: NextRequest) {
   try {
@@ -16,32 +13,35 @@ export async function POST(request: NextRequest) {
 
     if (!type || !id) return NextResponse.json({ error: 'Missing params' }, { status: 400 })
 
-    await dbConnect()
+    const supaUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supaKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabase = createServerClient(supaUrl!, supaKey!, {
+      cookies: {
+        async getAll() {
+          return (await cookies()).getAll()
+        },
+        async setAll(cookiesToSet) {
+          const store = await cookies()
+          cookiesToSet.forEach(({ name, value, options }) => store.set(name, value, options))
+        },
+      },
+    })
 
-    let model: any = null
-    if (type === 'product') model = Product
-    else if (type === 'offer') model = Offer
-    else if (type === 'consultant') model = Consultant
-    else return NextResponse.json({ error: 'Unknown type' }, { status: 400 })
+    const table = type === 'product' ? 'products' : type === 'offer' ? 'offers' : type === 'consultant' ? 'consultants' : null
+    if (!table) return NextResponse.json({ error: 'Unknown type' }, { status: 400 })
 
-    const doc = await model.findById(id)
-    if (!doc) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    const sel = await supabase.from(table).select('*').eq('id', id).single()
+    if (sel.error) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    const doc = sel.data
 
-    // capture author id before removal
-    let authorId: any = null
-    if (type === 'product') authorId = (doc as any).seller
-    else if (type === 'offer') authorId = (doc as any).author
-    else if (type === 'consultant') authorId = (doc as any).user
+    let authorEmail: string | null = null
+    if (type === 'product') authorEmail = (doc as any).seller_email ?? null
+    else if (type === 'offer') authorEmail = (doc as any).author_email ?? null
+    else if (type === 'consultant') authorEmail = null
 
-    await doc.remove()
+    await supabase.from(table).delete().eq('id', id)
 
     // notify author if possible
-    let authorEmail = null
-    if (authorId) {
-      const user = await User.findById(authorId).select('email')
-      authorEmail = user?.email
-    }
-
     if (authorEmail) {
       await sendAuthorNotification({ to: authorEmail, subject: 'Tu publicación fue rechazada', text: `Tu ${type} fue rechazada. Razón: ${reason || 'No especificada'}` })
     }

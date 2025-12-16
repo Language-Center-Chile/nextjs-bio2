@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { signIn } from 'next-auth/react'
+import { supabaseClient } from '@/lib/supabaseClient'
 
 const AuthBackground = () => {
   const [currentImage, setCurrentImage] = useState(0)
@@ -50,6 +50,7 @@ const AuthBackground = () => {
 }
 
 export default function RegistroPage() {
+  const supabase = supabaseClient
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -92,20 +93,17 @@ export default function RegistroPage() {
     }
 
     try {
-      // Aquí implementarías la lógica de registro
-      console.log('Registration attempt:', formData)
-      
-      // Simulación de registro
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      setSuccess('Cuenta creada exitosamente. Redirigiendo...')
-      
-      // Redirigir después del registro exitoso
-      setTimeout(() => {
-        router.push('/login')
-      }, 2000)
-    } catch (err) {
-      setError('Error al crear la cuenta. Intenta nuevamente.')
+      if (!supabase) throw new Error('Autenticación no disponible')
+      const { data, error } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: { data: { name: formData.name } }
+      })
+      if (error) throw error
+      setSuccess('Cuenta creada exitosamente. Revisa tu correo para confirmar.')
+      setTimeout(() => { router.push('/login') }, 2000)
+    } catch (err: any) {
+      setError(err.message || 'Error al crear la cuenta. Intenta nuevamente.')
     } finally {
       setIsLoading(false)
     }
@@ -114,12 +112,14 @@ export default function RegistroPage() {
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true)
-      await signIn('google', { 
-        callbackUrl: '/marketplace',
-        redirect: false 
+      if (!supabase) throw new Error('Autenticación no disponible')
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin }
       })
-    } catch (error) {
-      setError('Error al registrarse con Google')
+      if (error) throw error
+    } catch (error: any) {
+      setError(error.message || 'Error al registrarse con Google')
     } finally {
       setIsLoading(false)
     }

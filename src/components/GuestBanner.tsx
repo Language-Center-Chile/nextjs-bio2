@@ -1,12 +1,31 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { supabaseClient } from '@/lib/supabaseClient'
+import type { User } from '@supabase/supabase-js'
 
 export default function GuestBanner() {
-  const { data: session, status } = useSession()
+  const [user, setUser] = useState<User | null>(null)
+  const [status, setStatus] = useState<'loading' | 'ready'>('loading')
+  
+  useEffect(() => {
+    const supabase = supabaseClient
+    let mounted = true
+    const init = async () => {
+      if (!supabase) { setStatus('ready'); return }
+      const { data } = await supabase.auth.getUser()
+      if (mounted) setUser(data.user ?? null)
+      setStatus('ready')
+      supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null)
+      })
+    }
+    init()
+    return () => { mounted = false }
+  }, [])
 
-  if (status === 'loading' || session) {
+  if (status === 'loading' || user) {
     return null
   }
 

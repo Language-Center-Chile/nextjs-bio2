@@ -1,8 +1,9 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { supabaseClient } from '@/lib/supabaseClient'
+import type { User } from '@supabase/supabase-js'
 
 interface ProtectedActionProps {
   children: ReactNode
@@ -17,7 +18,24 @@ export default function ProtectedAction({
   requireAuth = true,
   action = "realizar esta acción"
 }: ProtectedActionProps) {
-  const { data: session, status } = useSession()
+  const [user, setUser] = useState<User | null>(null)
+  const [status, setStatus] = useState<'loading' | 'ready'>('loading')
+  
+  useEffect(() => {
+    const supabase = supabaseClient
+    let mounted = true
+    const init = async () => {
+      if (!supabase) { setStatus('ready'); return }
+      const { data } = await supabase.auth.getUser()
+      if (mounted) setUser(data.user ?? null)
+      setStatus('ready')
+      supabase.auth.onAuthStateChange((_event, session) => {
+        setUser(session?.user ?? null)
+      })
+    }
+    init()
+    return () => { mounted = false }
+  }, [])
 
   if (status === 'loading') {
     return (
@@ -27,7 +45,7 @@ export default function ProtectedAction({
     )
   }
 
-  if (requireAuth && !session) {
+  if (requireAuth && !user) {
     return fallback || (
       <div className="relative group">
         <div className="opacity-50 cursor-not-allowed">
