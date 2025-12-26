@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { sendAdminNotification, sendAuthorNotification } from '@/lib/email'
 import { createServerClient } from '@supabase/ssr'
+import { sendAdminNotification, sendAuthorNotification } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
   try {

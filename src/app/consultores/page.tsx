@@ -1,8 +1,8 @@
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 import HeroConsultores from '@/components/HeroConsultores';
 import PublicarOfertaSection from '@/components/PublicarOfertaSection';
 import ConsultantGrid from '@/components/ConsultantGrid'
-import { createServerClient } from '@supabase/ssr'
-import { cookies } from 'next/headers'
 
 export default async function ConsultoresPage() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
