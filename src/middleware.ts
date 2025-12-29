@@ -21,7 +21,7 @@ export function middleware(request: NextRequest) {
   // Content Security Policy básico
   response.headers.set(
     'Content-Security-Policy',
-    "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline';"
+    "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co;"
   )
 
   // Rate limiting básico para APIs (opcional - requerirá implementación adicional)

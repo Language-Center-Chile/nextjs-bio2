@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { signIn } from 'next-auth/react'
+import { supabase } from '@/lib/supabase'
 
 const AuthBackground = () => {
   const [currentImage, setCurrentImage] = useState(0)
@@ -56,6 +56,8 @@ export default function RegistroPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [pendingVerification, setPendingVerification] = useState(false)
+  const [resendStatus, setResendStatus] = useState('')
   const router = useRouter()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,27 +84,43 @@ export default function RegistroPage() {
     setIsLoading(true)
     setError('')
     setSuccess('')
-
-    if (!validateForm()) {
-      setIsLoading(false)
-      return
-    }
+    setPendingVerification(false)
+    setResendStatus('')
 
     try {
-      // Aquí implementarías la lógica de registro
-      console.log('Registration attempt:', formData)
-      
-      // Simulación de registro
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      setSuccess('Cuenta creada exitosamente. Redirigiendo...')
-      
-      // Redirigir después del registro exitoso
-      setTimeout(() => {
-        router.push('/login')
-      }, 2000)
-    } catch (err) {
-      setError('Error al crear la cuenta. Intenta nuevamente.')
+      if (!validateForm()) {
+        setIsLoading(false)
+        return
+      }
+      const { error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: { data: { name: formData.name } }
+      })
+      if (signUpError) {
+        throw signUpError
+      }
+      setSuccess('Cuenta creada. Revisa tu correo para confirmar.')
+      setPendingVerification(true)
+    } catch (err: any) {
+      setError(err.message || 'Error al crear la cuenta. Intenta nuevamente.')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleResendVerification = async () => {
+    try {
+      setIsLoading(true)
+      setResendStatus('')
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'signup',
+        email: formData.email
+      })
+      if (resendError) throw resendError
+      setResendStatus('Correo de confirmación reenviado. Revisa tu bandeja y spam.')
+    } catch (err: any) {
+      setResendStatus(err.message || 'No se pudo reenviar el correo de confirmación')
     } finally {
       setIsLoading(false)
     }
@@ -111,10 +129,13 @@ export default function RegistroPage() {
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true)
-      await signIn('google', { 
-        callbackUrl: '/marketplace',
-        redirect: false 
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin }
       })
+      if (oauthError) {
+        throw oauthError
+      }
     } catch (error) {
       setError('Error al registrarse con Google')
     } finally {
@@ -151,6 +172,27 @@ export default function RegistroPage() {
             {success && (
               <div className="bg-green-900/50 border border-green-600/50 text-green-300 px-4 py-3 rounded-lg text-sm">
                 {success}
+              </div>
+            )}
+            {pendingVerification && (
+              <div className="bg-yellow-900/40 border border-yellow-600/50 text-yellow-200 px-4 py-3 rounded-lg text-sm">
+                <p className="mb-3">Te enviamos un correo para confirmar tu cuenta. Si no lo ves, revisa spam.</p>
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={isLoading || !formData.email}
+                  className="w-full bg-yellow-500 text-gray-900 py-2 px-3 rounded-lg hover:bg-yellow-400 transition duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Reenviar correo de confirmación
+                </button>
+                {resendStatus && (
+                  <div className="mt-3 text-yellow-100">
+                    {resendStatus}
+                  </div>
+                )}
+                <div className="mt-3 text-yellow-100">
+                  Luego de confirmar, puedes <Link href="/login" className="underline">iniciar sesión</Link>.
+                </div>
               </div>
             )}
 

@@ -3,13 +3,13 @@
 import { useState } from 'react'
 import ProfileForm from '@/components/ProfileForm'
 import Link from 'next/link'
-import { useSession } from 'next-auth/react'
+import { supabase } from '@/lib/supabase'
 import ProductForm from '@/components/ProductForm'
 import JobOfferForm from '@/components/JobOfferForm'
 import ConsultantProfileForm from '@/components/ConsultantProfileForm'
 
 export default function ProfileLayout() {
-  const { data: session } = useSession()
+  const [user] = useState<any>(() => null)
   const [editing, setEditing] = useState(false)
   const [showProductForm, setShowProductForm] = useState(false)
   const [showJobOfferForm, setShowJobOfferForm] = useState(false)
@@ -60,15 +60,15 @@ export default function ProfileLayout() {
       <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
         <aside className="bg-neutral-800 p-4 rounded-lg">
           <div className="flex flex-col items-center gap-3">
-            {session?.user?.image ? (
+            {(user as any)?.user_metadata?.picture ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={session.user.image} alt="avatar" className="w-24 h-24 rounded-full object-cover" />
+              <img src={(user as any).user_metadata.picture} alt="avatar" className="w-24 h-24 rounded-full object-cover" />
             ) : (
               <div className="w-24 h-24 rounded-full bg-neutral-700 grid place-items-center text-white">U</div>
             )}
 
-            <div className="text-lg font-semibold">{session?.user?.name}</div>
-            <div className="text-sm text-gray-400">{session?.user?.email}</div>
+            <div className="text-lg font-semibold">{(user as any)?.user_metadata?.name || (user as any)?.user_metadata?.full_name || '—'}</div>
+            <div className="text-sm text-gray-400">{(user as any)?.email || '—'}</div>
           </div>
 
           <div className="mt-6 space-y-3">

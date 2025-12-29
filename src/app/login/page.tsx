@@ -1,18 +1,21 @@
-'use client'
+ 'use client'
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { signIn, getSession } from 'next-auth/react'
+import { supabase } from '@/lib/supabase'
 
 const AuthBackground = () => {
   const [currentImage, setCurrentImage] = useState(0)
   const images = [
-    '/assets/slider/biodiversidad0.jpg',
     '/assets/slider/biodiversidad1.jpg',
     '/assets/slider/biodiversidad2.jpg',
-    '/assets/slider/biodiversidad3.jpg'
+    '/assets/slider/biodiversidad3.jpg',
+    '/assets/slider/biodiversidad4.jpg',
+    '/assets/slider/biodiversidad5.jpg',
+    '/assets/slider/biodiversidad6.jpg',
+    '/assets/slider/biodiversidad7.jpg'
   ]
 
   useEffect(() => {
@@ -52,52 +55,47 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
+  const [pendingVerification, setPendingVerification] = useState(false)
+  const [resendStatus, setResendStatus] = useState('')
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
     setError('')
+    setPendingVerification(false)
+    setResendStatus('')
 
     try {
-      // Conectar a MongoDB y verificar credenciales
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Error al iniciar sesión');
-      }
-      
-      // Mostrar datos almacenados en la sesión
-      console.log('Datos almacenados en sesión:', {
-        usuario: data.user,
-        timestamp: new Date().toISOString(),
-        estado: 'autenticado',
-        tipo: 'email/password'
-      });
-      
-      // Almacenar datos del usuario en localStorage para que UserMenu pueda accederlos
-      localStorage.setItem('userSession', JSON.stringify({
-        user: {
-          name: data.user.name || email.split('@')[0],
-          email: data.user.email || email,
-          image: data.user.avatar || null,
-          role: data.user.role || 'user'
-        },
-        expires: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24 horas
-      }));
-      
-      // Redirigir después del login exitoso
+      if (!supabase) throw new Error('Autenticación no disponible')
+      const { error: signError } = await supabase.auth.signInWithPassword({ email, password })
+      if (signError) throw signError
       router.push('/')
     } catch (err: any) {
-      setError(err.message || 'Credenciales inválidas')
+      const msg = (err?.message || '').toLowerCase()
+      if (msg.includes('confirm') || msg.includes('verification') || msg.includes('not confirmed')) {
+        setPendingVerification(true)
+        setError('Tu correo aún no está confirmado. Revisa tu bandeja y spam.')
+      } else {
+        setError(err.message || 'Credenciales inválidas')
+      }
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleResendVerification = async () => {
+    try {
+      setIsLoading(true)
+      setResendStatus('')
+      const { error: resendError } = await supabase.auth.resend({
+        type: 'signup',
+        email
+      })
+      if (resendError) throw resendError
+      setResendStatus('Correo de confirmación reenviado. Revisa tu bandeja y spam.')
+    } catch (err: any) {
+      setResendStatus(err.message || 'No se pudo reenviar el correo de confirmación')
     } finally {
       setIsLoading(false)
     }
@@ -106,12 +104,11 @@ export default function LoginPage() {
   const handleGoogleSignIn = async () => {
     try {
       setIsLoading(true)
-      await signIn('google', { 
-        callbackUrl: '/',
-        redirect: false 
-      })
-    } catch (error) {
-      setError('Error al iniciar sesión con Google')
+      if (!supabase) throw new Error('Autenticación no disponible')
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })
+      if (oauthError) throw oauthError
+    } catch (error: any) {
+      setError(error.message || 'Error al iniciar sesión con Google')
     } finally {
       setIsLoading(false)
     }
@@ -140,6 +137,24 @@ export default function LoginPage() {
             {error && (
               <div className="bg-red-900/50 border border-red-600/50 text-red-300 px-4 py-3 rounded-lg text-sm">
                 {error}
+              </div>
+            )}
+            {pendingVerification && (
+              <div className="bg-yellow-900/40 border border-yellow-600/50 text-yellow-200 px-4 py-3 rounded-lg text-sm">
+                <p className="mb-3">Si no encuentras el correo, puedes reenviarlo.</p>
+                <button
+                  type="button"
+                  onClick={handleResendVerification}
+                  disabled={isLoading || !email}
+                  className="w-full bg-yellow-500 text-gray-900 py-2 px-3 rounded-lg hover:bg-yellow-400 transition duration-200 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Reenviar correo de confirmación
+                </button>
+                {resendStatus && (
+                  <div className="mt-3 text-yellow-100">
+                    {resendStatus}
+                  </div>
+                )}
               </div>
             )}
 

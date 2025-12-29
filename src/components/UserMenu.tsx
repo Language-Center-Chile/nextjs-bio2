@@ -1,37 +1,31 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { signOut, useSession } from 'next-auth/react';
 import { HiChevronDown } from 'react-icons/hi';
 import { useRouter } from 'next/navigation';
 import UserAvatar from './ui/UserAvatar';
 import Link from 'next/link';
+import { supabase } from '@/lib/supabase';
 
 export default function UserMenu() {
-  const { data: session, status } = useSession();
   const [open, setOpen] = useState(false);
-  const [localSession, setLocalSession] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [session, setSession] = useState<any>(null);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  // Cargar datos de localStorage al montar el componente
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const storedSession = localStorage.getItem('userSession');
-        if (storedSession) {
-          const parsedSession = JSON.parse(storedSession);
-          // Verificar si la sesión ha expirado
-          if (new Date(parsedSession.expires) > new Date()) {
-            setLocalSession(parsedSession);
-          } else {
-            localStorage.removeItem('userSession');
-          }
-        }
-      } catch (error) {
-        console.error('Error al cargar la sesión local:', error);
-      }
-    }
+    let active = true;
+    (async () => {
+      const { data } = await supabase.auth.getSession();
+      if (!active) return;
+      setSession(data.session || null);
+      setLoading(false);
+    })();
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+      setSession(newSession || null);
+    });
+    return () => { active = false; sub.subscription.unsubscribe(); };
   }, []);
 
   // Cierra al hacer click fuera
@@ -44,10 +38,9 @@ export default function UserMenu() {
     return () => window.removeEventListener('click', onClick);
   }, []);
 
-  if (status === 'loading') return null;
+  if (loading) return null;
 
-  // Usar sesión de next-auth o la sesión local
-  const activeSession = session || localSession;
+  const activeSession = session;
 
   // Sin sesión → botón que navega a /login
   if (!activeSession) {
@@ -61,23 +54,29 @@ export default function UserMenu() {
     );
   }
 
-  const name = activeSession.user?.name ?? 'Usuario';
-  const image = activeSession.user?.image ?? null;
+  const meta = activeSession.user?.user_metadata || {};
+  const identity = Array.isArray((activeSession.user as any)?.identities) ? (activeSession.user as any).identities[0]?.identity_data || {} : {};
+  const name =
+    meta.name ||
+    meta.full_name ||
+    identity.name ||
+    identity.full_name ||
+    activeSession.user?.email?.split('@')[0] ||
+    'Usuario';
+  const image =
+    meta.avatar_url ||
+    meta.picture ||
+    identity.avatar_url ||
+    identity.picture ||
+    null;
 
   // Función para cerrar sesión
   const handleSignOut = () => {
-    // Limpiar completamente localStorage
-    localStorage.removeItem('userSession');
-    // Limpiar también el estado local
-    setLocalSession(null);
-    // Si hay sesión de next-auth, cerrarla también
-    if (session) {
-      signOut({ callbackUrl: '/' });
-    } else {
-      // Si solo hay sesión local, redirigir a inicio
+    supabase.auth.signOut().finally(() => {
       router.push('/');
       router.refresh();
-    }
+      setSession(null);
+    });
   };
 
   return (
@@ -103,7 +102,7 @@ export default function UserMenu() {
             <div className="min-w-0">
               <div className="font-semibold truncate">{name}</div>
               <div className="text-xs text-white/60 truncate">
-                {activeSession.user?.role === 'consultant' ? 'Consultor' : 'Colaborador'}
+                Colaborador
               </div>
             </div>
           </div>

@@ -1,8 +1,9 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
 import { ReactNode } from 'react'
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
 
 interface ProtectedActionProps {
   children: ReactNode
@@ -17,7 +18,19 @@ export default function ProtectedAction({
   requireAuth = true,
   action = "realizar esta acción"
 }: ProtectedActionProps) {
-  const { data: session, status } = useSession()
+  const [session, setSession] = useState<any>(null)
+  const [status, setStatus] = useState<'loading' | 'ready'>('loading')
+
+  useEffect(() => {
+    let active = true
+    ;(async () => {
+      const { data } = await supabase.auth.getSession()
+      if (!active) return
+      setSession(data.session || null)
+      setStatus('ready')
+    })()
+    return () => { active = false }
+  }, [])
 
   if (status === 'loading') {
     return (
