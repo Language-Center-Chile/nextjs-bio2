@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
 type Props = {
   editing?: boolean
@@ -10,7 +10,7 @@ type Props = {
 }
 
 export default function ProfileForm({ editing: editingProp, onEditingChange }: Props = {}) {
-  const { data: session } = useSession()
+  const [user, setUser] = useState<any>(null)
   const router = useRouter()
 
   const [editingInternal, setEditingInternal] = useState(false)
@@ -26,27 +26,36 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
   }
 
   const [form, setForm] = useState({
-    name: session?.user?.name || '',
-    address: (session as any)?.user?.address || '',
-    postalCode: (session as any)?.user?.postalCode || '',
-    bio: (session as any)?.user?.bio || (session?.user?.name ? `Hola, soy ${session?.user?.name}` : '')
+    name: '',
+    address: '',
+    postalCode: '',
+    bio: ''
   })
 
   useEffect(() => {
-    setForm({
-      name: session?.user?.name || '',
-      address: (session as any)?.user?.address || '',
-      postalCode: (session as any)?.user?.postalCode || '',
-      bio: (session as any)?.user?.bio || (session?.user?.name ? `Hola, soy ${session?.user?.name}` : '')
-    })
-    setPreview((session as any)?.user?.avatar ?? (session as any)?.user?.image ?? null)
-  }, [session])
+    ;(async () => {
+      const { data } = await supabase.auth.getUser()
+      const u = data.user
+      setUser(u)
+      const displayName =
+        (u?.user_metadata as any)?.name ||
+        (u?.user_metadata as any)?.full_name ||
+        ''
+      setForm({
+        name: displayName,
+        address: '',
+        postalCode: '',
+        bio: displayName ? `Hola, soy ${displayName}` : ''
+      })
+      setPreview((u?.user_metadata as any)?.avatar_url ?? (u?.user_metadata as any)?.picture ?? null)
+    })()
+  }, [])
 
   const [isSaving, setIsSaving] = useState(false)
   const [message, setMessage] = useState('')
 
   // Avatar state
-  const [preview, setPreview] = useState<string | null>((session as any)?.user?.avatar ?? (session as any)?.user?.image ?? null)
+  const [preview, setPreview] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
@@ -127,12 +136,12 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
 
   function onCancel() {
     setForm({
-      name: session?.user?.name || '',
-      address: (session as any)?.user?.address || '',
-      postalCode: (session as any)?.user?.postalCode || '',
-      bio: (session as any)?.user?.bio || (session?.user?.name ? `Hola, soy ${session?.user?.name}` : '')
+      name: (user?.user_metadata as any)?.name || (user?.user_metadata as any)?.full_name || '',
+      address: (user?.user_metadata as any)?.address || '',
+      postalCode: (user?.user_metadata as any)?.postalCode || '',
+      bio: (user?.user_metadata as any)?.bio || (user?.user_metadata as any)?.name ? `Hola, soy ${(user?.user_metadata as any)?.name}` : ''
     })
-    setPreview((session as any)?.user?.avatar ?? (session as any)?.user?.image ?? null)
+    setPreview((user?.user_metadata as any)?.avatar_url ?? (user?.user_metadata as any)?.picture ?? null)
     setMessage('')
     setEditing(false)
   }
@@ -155,7 +164,7 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
             <div className="flex items-center justify-between">
               <div>
                 <div className="text-lg font-semibold">{form.name || '—'}</div>
-                <div className="text-sm text-gray-400">{session?.user?.email}</div>
+            <div className="text-sm text-gray-400">{user?.email}</div>
               </div>
               <div>
                 <button onClick={() => setEditing(true)} className="bg-amber-500 text-black px-3 py-1 rounded">Editar</button>
@@ -198,7 +207,7 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
             <button type="button" onClick={handleUploadAvatar} disabled={uploading || !preview} className="bg-green-600 px-3 py-1 rounded text-white text-sm disabled:opacity-50">
               {uploading ? 'Subiendo...' : 'Subir foto'}
             </button>
-            <button type="button" onClick={() => { setPreview((session as any)?.user?.avatar ?? (session as any)?.user?.image ?? null); setMessage('') }} className="bg-neutral-800 px-3 py-1 rounded text-white text-sm">
+            <button type="button" onClick={() => { setPreview((user?.user_metadata as any)?.avatar_url ?? (user?.user_metadata as any)?.picture ?? null); setMessage('') }} className="bg-neutral-800 px-3 py-1 rounded text-white text-sm">
               Restaurar
             </button>
           </div>
