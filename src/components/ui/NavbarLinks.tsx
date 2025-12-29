@@ -5,10 +5,10 @@ import { FaHome, FaShoppingCart, FaUserTie, FaBook, FaHandsHelping, FaIdBadge, F
 
 const navItems = [
   { label: "Inicio", href: "/", icon: <FaHome /> },
-  { label: "Marketplace", href: "/marketplace", icon: <FaShoppingCart /> },
+  // { label: "Marketplace", href: "/marketplace", icon: <FaShoppingCart /> },
   { label: "Consultores", href: "/consultores", icon: <FaUserTie /> },
-  { label: "Educación", href: "/educacion", icon: <FaBook /> },
-  { label: "Campañas", href: "/campanas", icon: <FaHandsHelping /> },
+  // { label: "Educación", href: "/educacion", icon: <FaBook /> },
+  // { label: "Campañas", href: "/campanas", icon: <FaHandsHelping /> },
   { label: "Membresías", href: "/membresias", icon: <FaIdBadge /> },
 ];
 

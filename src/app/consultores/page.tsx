@@ -1,28 +1,41 @@
 import HeroConsultores from '@/components/HeroConsultores';
 import PublicarOfertaSection from '@/components/PublicarOfertaSection';
-import dbConnect from '@/lib/mongodb'
-import Consultant from '@/models/Consultant'
-import Offer from '@/models/Offer'
 import ConsultantGrid from '@/components/ConsultantGrid'
 import OfferCard from '@/components/ui/OfferCard'
 import OfferGrid from '@/components/OfferGrid'
+import { supabase } from '@/lib/supabase'
 
 export default async function ConsultoresPage() {
   let consultores: any[] = []
   let offers: any[] = []
 
   try {
-    await dbConnect()
-    consultores = await Consultant.find({ isActive: true }).sort({ createdAt: -1 }).lean()
-  // fetch offers according to feature flag: when OFFERS_SHOW_PENDING=true include pending offers
-  const offerFilter = process.env.OFFERS_SHOW_PENDING === 'true' ? {} : { isApproved: true }
-  offers = await Offer.find(offerFilter).sort({ createdAt: -1 }).limit(12).lean()
+    const { data: consData, error: consError } = await supabase
+      .from('consultants')
+      .select('id,name,specialty,bio,avatar,isActive,created_at')
+      .eq('isActive', true)
+      .order('created_at', { ascending: false })
+    if (!consError && consData) {
+      consultores = consData
+    }
+    const showPending = process.env.OFFERS_SHOW_PENDING === 'true'
+    const query = supabase
+      .from('offers')
+      .select('id,title,description,location,salaryMin,salaryMax,modality,employmentType,contact,tags,isApproved,created_at')
+      .order('created_at', { ascending: false })
+      .limit(12)
+    const { data: offData, error: offError } = showPending
+      ? await query
+      : await query.eq('isApproved', true)
+    if (!offError && offData) {
+      offers = offData
+    }
   } catch (err) {
     console.error('Error fetching consultants:', err)
   }
 
-  const serialized = consultores.map(c => ({
-    id: c._id.toString(),
+  const serialized = consultores.map((c: any) => ({
+    id: (c.id || c._id || '').toString(),
     name: c.name,
     specialty: c.specialty,
     bio: c.bio,
@@ -31,7 +44,7 @@ export default async function ConsultoresPage() {
 
   // serialize offers for rendering
   const serializedOffers = (typeof offers !== 'undefined' ? offers : []).map((o: any) => ({
-    id: o._id && o._id.toString ? o._id.toString() : o._id,
+    id: o.id || (o._id && o._id.toString ? o._id.toString() : o._id),
     title: o.title,
     description: o.description,
     location: o.location || {},
