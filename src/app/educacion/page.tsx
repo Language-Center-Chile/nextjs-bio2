@@ -1,6 +1,6 @@
 import HeroEducacion from '@/components/HeroEducacion';
 import CompartirRecursoSection from '@/components/CompartirRecursoSection';
-import dbConnect from '@/lib/mongodb'
+import dbConnect from '@/lib/db'
 import Resource from '@/models/Resource'
 
 export default async function EducacionPage() {

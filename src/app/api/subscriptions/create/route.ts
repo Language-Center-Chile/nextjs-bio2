@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/lib/mongodb'
+import dbConnect from '@/lib/db'
 import Subscription from '@/models/Subscription'
 import { getToken } from 'next-auth/jwt'
 import { createFlowCheckout } from '@/lib/payments/flow'

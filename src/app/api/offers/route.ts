@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/lib/mongodb'
+import dbConnect from '@/lib/db'
 import Offer from '@/models/Offer'
 import { getToken } from 'next-auth/jwt'
 import { sendAdminNotification, sendAuthorNotification, isSmtpConfigured } from '@/lib/email'
 import User from '@/models/User'
-import { MongoClient } from 'mongodb'
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,23 +12,6 @@ export async function POST(request: NextRequest) {
     let userId: string | undefined = undefined
     if (token && token.sub) {
       userId = token.sub
-    } else {
-      // Fallback: extract next-auth.session-token cookie and lookup sessions collection
-      const cookieHeader = request.headers.get('cookie') || ''
-      const match = cookieHeader.match(/(?:__Secure-)?next-auth.session-token=([^;\s]+)/) || cookieHeader.match(/next-auth.session-token=([^;\s]+)/)
-      const sessionToken = match ? decodeURIComponent(match[1]) : null
-      if (sessionToken && process.env.MONGODB_URI) {
-        const client = new MongoClient(process.env.MONGODB_URI)
-        await client.connect()
-        try {
-          const db = client.db()
-          const sessionsCol = db.collection('sessions')
-          const sess = await sessionsCol.findOne({ sessionToken })
-          if (sess && (sess as any).userId) userId = String((sess as any).userId)
-        } finally {
-          await client.close()
-        }
-      }
     }
 
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

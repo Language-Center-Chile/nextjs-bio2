@@ -1,6 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
-import dbConnect from '../../../../lib/mongodb'
+import dbConnect from '../../../../lib/db'
 import User from '../../../../models/User'
 
 export async function POST(req: NextRequest) {

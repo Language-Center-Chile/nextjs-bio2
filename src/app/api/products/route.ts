@@ -1,9 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import dbConnect from '@/lib/mongodb'
+import dbConnect from '@/lib/db'
 import Product from '@/models/Product'
 import User from '@/models/User'
 import { getToken } from 'next-auth/jwt'
-import { MongoClient } from 'mongodb'
 import { sendAdminNotification, sendAuthorNotification } from '@/lib/email'
 
 // POST /api/products - Crear nuevo producto
@@ -18,26 +17,6 @@ export async function POST(request: NextRequest) {
     let userId: string | undefined = undefined
     if (token && token.sub) {
       userId = token.sub
-    } else {
-      // fallback: buscar sessionToken en cookies y leer la colección sessions
-      const cookieHeader = request.headers.get('cookie') || ''
-      const match = cookieHeader.match(/(?:__Secure-)?next-auth.session-token=([^;\s]+)/) || cookieHeader.match(/next-auth.session-token=([^;\s]+)/)
-      const sessionToken = match ? decodeURIComponent(match[1]) : null
-      console.log('[api/products] extracted sessionToken:', sessionToken)
-
-      if (sessionToken && process.env.MONGODB_URI) {
-        const client = new MongoClient(process.env.MONGODB_URI)
-        await client.connect()
-        try {
-          const db = client.db()
-          const sessionsCol = db.collection('sessions')
-          const sess = await sessionsCol.findOne({ sessionToken })
-          console.log('[api/products] session from db:', sess)
-          if (sess && (sess as any).userId) userId = String((sess as any).userId)
-        } finally {
-          await client.close()
-        }
-      }
     }
 
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
