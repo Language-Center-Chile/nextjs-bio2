@@ -1,4 +1,4 @@
-import { FaLeaf } from "react-icons/fa";
+
 
 export default function NavbarLogo() {
   return (

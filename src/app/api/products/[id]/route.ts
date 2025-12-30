@@ -4,11 +4,12 @@ import dbConnect from '@/lib/db'
 // GET /api/products/[id] - Obtener producto específico
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await dbConnect()
-    const res = await supabase.from('products').select('*').eq('id', params.id).single()
+    const res = await supabase.from('products').select('*').eq('id', id).single()
     if (res.error && res.error.code !== 'PGRST116') {
       return NextResponse.json({ error: 'Error de base de datos' }, { status: 500 })
     }
@@ -41,12 +42,13 @@ export async function GET(
 // PUT /api/products/[id] - Actualizar producto
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await dbConnect()
     const body = await request.json()
-    const updateRes = await supabase.from('products').update(body).eq('id', params.id).select('*').single()
+    const updateRes = await supabase.from('products').update(body).eq('id', id).select('*').single()
     if (updateRes.error) {
       return NextResponse.json({ error: 'Datos de producto inválidos', details: updateRes.error.message }, { status: 400 })
     }
@@ -79,11 +81,12 @@ export async function PUT(
 // DELETE /api/products/[id] - Eliminar producto
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await dbConnect()
-    const delRes = await supabase.from('products').delete().eq('id', params.id)
+    const delRes = await supabase.from('products').delete().eq('id', id)
     if (delRes.error) {
       return NextResponse.json({ error: 'Error de base de datos' }, { status: 500 })
     }

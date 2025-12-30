@@ -21,7 +21,7 @@ export default function UserAvatar({ src, name = 'Usuario', size = 36, className
   return src ? (
     <Image
       src={src}
-      alt={name}
+      alt={name ?? 'Usuario'}
       width={size}
       height={size}
       className={`rounded-full object-cover ring-1 ring-white/10 ${className}`}
@@ -30,7 +30,7 @@ export default function UserAvatar({ src, name = 'Usuario', size = 36, className
     <div
       style={{ width: size, height: size }}
       className={`rounded-full bg-neutral-700 text-white grid place-items-center text-xs font-semibold ring-1 ring-white/10 ${className}`}
-      aria-label={name}
+      aria-label={name ?? 'Usuario'}
     >
       {initials}
     </div>
