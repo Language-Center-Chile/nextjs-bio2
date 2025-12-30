@@ -1,3 +1,5 @@
+import Image from 'next/image'
+
 export default function CampanasSection() {
   return (
     <>
@@ -27,8 +29,13 @@ export default function CampanasSection() {
             </div>
             <a href="#" className="bg-green-600 text-white px-6 py-3 rounded-full font-semibold mt-6 inline-block hover:bg-green-700 transition">💚 Donar ahora</a>
           </div>
-          <div className="md:w-1/2">
-            <img src="https://images.unsplash.com/photo-1580411196492-027c480950c1?w=500&auto=format&fit=crop&q=60" alt="Campaña Patagonia" className="rounded-lg shadow-md" />
+          <div className="md:w-1/2 relative h-64 w-full">
+            <Image 
+              src="https://images.unsplash.com/photo-1580411196492-027c480950c1?w=500&auto=format&fit=crop&q=60" 
+              alt="Campaña Patagonia" 
+              fill
+              className="object-cover rounded-lg shadow-md"
+            />
           </div>
         </div>
       </section>
@@ -37,19 +44,40 @@ export default function CampanasSection() {
       <section className="bg-gray-100 py-16" id="campanas">
         <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
           <div className="bg-white rounded-lg shadow-md p-4 text-center">
-            <img src="https://images.unsplash.com/photo-1592194996308-7b43878e84a6?auto=format&fit=crop&w=400&q=80" alt="Protección de humedales" className="rounded-lg mb-4" />
+            <div className="relative h-48 w-full mb-4">
+              <Image 
+                src="https://images.unsplash.com/photo-1592194996308-7b43878e84a6?auto=format&fit=crop&w=400&q=80" 
+                alt="Protección de humedales" 
+                fill
+                className="object-cover rounded-lg"
+              />
+            </div>
             <h4 className="text-lg font-bold text-gray-800">Protección de Humedales Urbanos</h4>
             <p className="text-gray-600">Meta: Conservación y educación ambiental</p>
             <a href="#" className="bg-green-600 text-white px-4 py-2 rounded-full font-semibold mt-4 inline-block hover:bg-green-700 transition">Apoyar</a>
           </div>
           <div className="bg-white rounded-lg shadow-md p-4 text-center">
-            <img src="https://images.unsplash.com/photo-1508780709619-79562169bc64?auto=format&fit=crop&w=400&q=80" alt="Campaña de reciclaje" className="rounded-lg mb-4" />
+            <div className="relative h-48 w-full mb-4">
+              <Image 
+                src="https://images.unsplash.com/photo-1508780709619-79562169bc64?auto=format&fit=crop&w=400&q=80" 
+                alt="Campaña de reciclaje" 
+                fill
+                className="object-cover rounded-lg"
+              />
+            </div>
             <h4 className="text-lg font-bold text-gray-800">Campaña Nacional de Reciclaje</h4>
             <p className="text-gray-600">Meta: 1.000 kits educativos</p>
             <a href="#" className="bg-green-600 text-white px-4 py-2 rounded-full font-semibold mt-4 inline-block hover:bg-green-700 transition">Sumarse</a>
           </div>
           <div className="bg-white rounded-lg shadow-md p-4 text-center">
-            <img src="https://images.unsplash.com/photo-1580411196492-027c480950c1?w=500&auto=format&fit=crop&q=60" alt="Salvemos los polinizadores" className="rounded-lg mb-4" />
+            <div className="relative h-48 w-full mb-4">
+              <Image 
+                src="https://images.unsplash.com/photo-1580411196492-027c480950c1?w=500&auto=format&fit=crop&q=60" 
+                alt="Salvemos los polinizadores" 
+                fill
+                className="object-cover rounded-lg"
+              />
+            </div>
             <h4 className="text-lg font-bold text-gray-800">Salvemos a los Polinizadores</h4>
             <p className="text-gray-600">Meta: 200 jardines urbanos</p>
             <a href="#" className="bg-green-600 text-white px-4 py-2 rounded-full font-semibold mt-4 inline-block hover:bg-green-700 transition">Contribuir</a>
@@ -73,4 +101,3 @@ export default function CampanasSection() {
     </>
   );
 }
-

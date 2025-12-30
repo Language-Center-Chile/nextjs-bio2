@@ -1,9 +1,8 @@
-'use client'
+ 'use client'
 
 import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 const AuthBackground = () => {
@@ -58,7 +57,6 @@ export default function RegistroPage() {
   const [success, setSuccess] = useState('')
   const [pendingVerification, setPendingVerification] = useState(false)
   const [resendStatus, setResendStatus] = useState('')
-  const router = useRouter()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({
@@ -103,7 +101,7 @@ export default function RegistroPage() {
       setSuccess('Cuenta creada. Revisa tu correo para confirmar.')
       setPendingVerification(true)
     } catch (err: any) {
-      setError(err.message || 'Error al crear la cuenta. Intenta nuevamente.')
+      setError(err?.message || 'Error al crear la cuenta. Intenta nuevamente.')
     } finally {
       setIsLoading(false)
     }
@@ -120,7 +118,7 @@ export default function RegistroPage() {
       if (resendError) throw resendError
       setResendStatus('Correo de confirmación reenviado. Revisa tu bandeja y spam.')
     } catch (err: any) {
-      setResendStatus(err.message || 'No se pudo reenviar el correo de confirmación')
+      setResendStatus(err?.message || 'No se pudo reenviar el correo de confirmación')
     } finally {
       setIsLoading(false)
     }
@@ -136,8 +134,8 @@ export default function RegistroPage() {
       if (oauthError) {
         throw oauthError
       }
-    } catch (error) {
-      setError('Error al registrarse con Google')
+    } catch (error: any) {
+      setError(error?.message || 'Error al registrarse con Google')
     } finally {
       setIsLoading(false)
     }

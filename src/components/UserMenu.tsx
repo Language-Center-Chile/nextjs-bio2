@@ -6,11 +6,21 @@ import { useRouter } from 'next/navigation';
 import UserAvatar from './ui/UserAvatar';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import { Session } from '@supabase/supabase-js';
+
+interface UserIdentity {
+  identity_data?: {
+    name?: string
+    full_name?: string
+    avatar_url?: string
+    picture?: string
+  }
+}
 
 export default function UserMenu() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [session, setSession] = useState<any>(null);
+  const [session, setSession] = useState<Session | null>(null);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
@@ -19,11 +29,11 @@ export default function UserMenu() {
     (async () => {
       const { data } = await supabase.auth.getSession();
       if (!active) return;
-      setSession(data.session || null);
+      setSession(data.session);
       setLoading(false);
     })();
     const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
-      setSession(newSession || null);
+      setSession(newSession);
     });
     return () => { active = false; sub.subscription.unsubscribe(); };
   }, []);
@@ -55,7 +65,9 @@ export default function UserMenu() {
   }
 
   const meta = activeSession.user?.user_metadata || {};
-  const identity = Array.isArray((activeSession.user as any)?.identities) ? (activeSession.user as any).identities[0]?.identity_data || {} : {};
+  const identities = (activeSession.user?.identities as unknown as UserIdentity[]) || [];
+  const identity = identities.length > 0 ? identities[0].identity_data || {} : {};
+  
   const name =
     meta.name ||
     meta.full_name ||

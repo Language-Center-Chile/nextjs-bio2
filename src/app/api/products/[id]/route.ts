@@ -1,6 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
 
+interface Product {
+  id: string
+  title: string
+  description: string
+  price: number
+  category: string
+  images: string[]
+  seller_id: string
+  created_at: string
+  is_approved: boolean
+  country?: string
+  city?: string
+}
+
+interface Seller {
+  id: string
+  name: string
+  email: string
+  avatar: string
+  bio?: string
+}
+
 // GET /api/products/[id] - Obtener producto específico
 export async function GET(
   request: NextRequest,
@@ -13,7 +35,7 @@ export async function GET(
     if (res.error && res.error.code !== 'PGRST116') {
       return NextResponse.json({ error: 'Error de base de datos' }, { status: 500 })
     }
-    const product = res.data
+    const product = res.data as Product | null
 
     if (!product) {
       return NextResponse.json(
@@ -22,10 +44,10 @@ export async function GET(
       )
     }
 
-    let seller: any = null
-    if (product && (product as any).seller_id) {
-      const sellerRes = await supabase.from('users').select('id,name,email,avatar,bio').eq('id', (product as any).seller_id).single()
-      if (!sellerRes.error) seller = sellerRes.data
+    let seller: Seller | null = null
+    if (product && product.seller_id) {
+      const sellerRes = await supabase.from('users').select('id,name,email,avatar,bio').eq('id', product.seller_id).single()
+      if (!sellerRes.error && sellerRes.data) seller = sellerRes.data as Seller
     }
 
     return NextResponse.json(product ? { ...product, seller } : null)
@@ -52,11 +74,11 @@ export async function PUT(
     if (updateRes.error) {
       return NextResponse.json({ error: 'Datos de producto inválidos', details: updateRes.error.message }, { status: 400 })
     }
-    const product = updateRes.data
-    let seller: any = null
-    if (product && (product as any).seller_id) {
-      const sellerRes = await supabase.from('users').select('id,name,email,avatar').eq('id', (product as any).seller_id).single()
-      if (!sellerRes.error) seller = sellerRes.data
+    const product = updateRes.data as Product | null
+    let seller: Seller | null = null
+    if (product && product.seller_id) {
+      const sellerRes = await supabase.from('users').select('id,name,email,avatar').eq('id', product.seller_id).single()
+      if (!sellerRes.error && sellerRes.data) seller = sellerRes.data as Seller
     }
 
     if (!product) {

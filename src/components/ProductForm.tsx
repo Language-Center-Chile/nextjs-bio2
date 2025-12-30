@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { supabase } from '@/lib/supabase'
 
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -88,7 +89,7 @@ export default function ProductForm({ onCreated }: { onCreated?: () => void }) {
       <div className="grid grid-cols-2 gap-2">
         <div>
           <label className="text-sm block mb-1">Precio (CLP)</label>
-          <input type="number" className="w-full px-3 py-2 rounded bg-neutral-700" value={price as any} onChange={e => setPrice(e.target.value === '' ? '' : Number(e.target.value))} required />
+          <input type="number" className="w-full px-3 py-2 rounded bg-neutral-700" value={price} onChange={e => setPrice(e.target.value === '' ? '' : Number(e.target.value))} required />
         </div>
 
         <div>

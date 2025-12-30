@@ -1,12 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import { getToken } from 'next-auth/jwt'
+import { getAuthUser } from '@/lib/auth-helper'
 import { sendAdminNotification, sendAuthorNotification } from '@/lib/email'
+
+interface UserToken {
+  sub: string
+  email?: string
+}
+
+interface AuthorUser {
+  email?: string
+}
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await dbConnect()
-    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
+    const token = await getAuthUser(request)
     let userId: string | undefined = undefined
     if (token && token.sub) {
       userId = token.sub
@@ -29,10 +38,12 @@ export async function POST(request: NextRequest) {
       await sendAdminNotification({ subject: `Perfil de consultor a revisar: ${userId}`, text: `Revisar: ${approveUrl}` })
       try {
         let authorEmail: string | undefined = undefined
-        if (token && (token as any).email) authorEmail = (token as any).email
+        const userToken = token as unknown as UserToken
+        if (userToken && userToken.email) authorEmail = userToken.email
         if (!authorEmail) {
           const authorUser = await supabase.from('users').select('email').eq('id', userId).single()
-          if (!authorUser.error && authorUser.data && (authorUser.data as any).email) authorEmail = String((authorUser.data as any).email)
+          const userData = authorUser.data as AuthorUser
+          if (!authorUser.error && userData && userData.email) authorEmail = String(userData.email)
         }
         if (authorEmail) await sendAuthorNotification({ to: authorEmail, subject: 'Tu perfil de consultor fue enviado para revisión', text: 'Tu perfil fue actualizado y está pendiente de aprobación.' })
       } catch (e) {
@@ -51,10 +62,12 @@ export async function POST(request: NextRequest) {
     await sendAdminNotification({ subject: `Nuevo perfil de consultor a revisar`, text: `Revisar: ${approveUrl}` })
     try {
       let authorEmail: string | undefined = undefined
-      if (token && (token as any).email) authorEmail = (token as any).email
+      const userToken = token as unknown as UserToken
+      if (userToken && userToken.email) authorEmail = userToken.email
       if (!authorEmail) {
         const authorUser = await supabase.from('users').select('email').eq('id', userId).single()
-        if (!authorUser.error && authorUser.data && (authorUser.data as any).email) authorEmail = String((authorUser.data as any).email)
+        const userData = authorUser.data as AuthorUser
+        if (!authorUser.error && userData && userData.email) authorEmail = String(userData.email)
       }
       if (authorEmail) await sendAuthorNotification({ to: authorEmail, subject: 'Tu perfil fue enviado para revisión', text: 'Gracias, tu perfil de consultor está pendiente de aprobación.' })
     } catch (e) {

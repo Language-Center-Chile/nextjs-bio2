@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import { getToken } from 'next-auth/jwt'
+import { getAuthUser } from '@/lib/auth-helper'
 
 export async function POST(req: NextRequest) {
   try {
-    // DEBUG: mostrar cookies y token para investigar 401
-    console.log('[api/user/profile] cookies header:', req.headers.get('cookie'))
-
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
-    console.log('[api/user/profile] getToken result:', token)
+    const token = await getAuthUser(req)
 
     let userId: string | undefined = undefined
     if (token && token.sub) {

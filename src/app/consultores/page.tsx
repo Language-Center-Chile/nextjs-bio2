@@ -1,13 +1,38 @@
 import HeroConsultores from '@/components/HeroConsultores';
 import PublicarOfertaSection from '@/components/PublicarOfertaSection';
 import ConsultantGrid from '@/components/ConsultantGrid'
-import OfferCard from '@/components/ui/OfferCard'
 import OfferGrid from '@/components/OfferGrid'
 import { supabase } from '@/lib/supabase'
 
+interface Consultant {
+  id: string
+  name: string
+  specialty: string
+  bio: string
+  avatar: string
+  isActive: boolean
+  created_at: string
+}
+
+interface Offer {
+  id: string
+  title: string
+  description: string
+  location: any
+  salaryMin?: number
+  salaryMax?: number
+  modality: string
+  employmentType: string
+  contact: string
+  tags: string[]
+  isApproved: boolean
+  created_at: string
+  _id?: string
+}
+
 export default async function ConsultoresPage() {
-  let consultores: any[] = []
-  let offers: any[] = []
+  let consultores: Consultant[] = []
+  let offers: Offer[] = []
 
   try {
     const { data: consData, error: consError } = await supabase
@@ -16,7 +41,7 @@ export default async function ConsultoresPage() {
       .eq('isActive', true)
       .order('created_at', { ascending: false })
     if (!consError && consData) {
-      consultores = consData
+      consultores = consData as unknown as Consultant[]
     }
     const showPending = process.env.OFFERS_SHOW_PENDING === 'true'
     const query = supabase
@@ -28,14 +53,14 @@ export default async function ConsultoresPage() {
       ? await query
       : await query.eq('isApproved', true)
     if (!offError && offData) {
-      offers = offData
+      offers = offData as unknown as Offer[]
     }
   } catch (err) {
     console.error('Error fetching consultants:', err)
   }
 
-  const serialized = consultores.map((c: any) => ({
-    id: (c.id || c._id || '').toString(),
+  const serialized = consultores.map((c) => ({
+    id: c.id,
     name: c.name,
     specialty: c.specialty,
     bio: c.bio,
@@ -43,8 +68,8 @@ export default async function ConsultoresPage() {
   }))
 
   // serialize offers for rendering
-  const serializedOffers = (typeof offers !== 'undefined' ? offers : []).map((o: any) => ({
-    id: o.id || (o._id && o._id.toString ? o._id.toString() : o._id),
+  const serializedOffers = (typeof offers !== 'undefined' ? offers : []).map((o) => ({
+    id: o.id || (o._id ? o._id : o.id),
     title: o.title,
     description: o.description,
     location: o.location || {},

@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import { getToken } from 'next-auth/jwt'
+import { getAuthUser } from '@/lib/auth-helper'
 
 export async function GET(request: NextRequest) {
   try {
     const supabase = await dbConnect()
-    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
+    const token = await getAuthUser(request)
     if (!token || !token.sub) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const { data, error } = await supabase

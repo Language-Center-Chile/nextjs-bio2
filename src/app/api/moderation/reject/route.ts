@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import { supabase } from '@/lib/supabase'
 import { sendAuthorNotification } from '@/lib/email'
+
+interface AuthorUser {
+  email?: string
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,7 +22,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Unknown type' }, { status: 400 })
     }
 
-    let authorId: any = null
+    let authorId: string | null = null
     if (type === 'product') {
       const sel = await supabase.from('products').select('seller_id').eq('id', id).single()
       if (sel.error) return NextResponse.json({ error: 'Not found' }, { status: 404 })
@@ -41,14 +44,12 @@ export async function POST(request: NextRequest) {
     }
 
     // notify author if possible
-    let authorEmail = null
+    let authorEmail: string | null = null
     if (authorId) {
-      if (type === 'product') {
+      if (type === 'product' || type === 'offer' || type === 'consultant') {
         const user = await supabase.from('users').select('email').eq('id', String(authorId)).single()
-        authorEmail = user.data?.email || null
-      } else if (type === 'offer' || type === 'consultant') {
-        const user = await supabase.from('users').select('email').eq('id', String(authorId)).single()
-        authorEmail = user.data?.email || null
+        const userData = user.data as AuthorUser
+        authorEmail = userData?.email || null
       }
     }
 

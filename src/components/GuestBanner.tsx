@@ -3,9 +3,10 @@
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import { Session } from '@supabase/supabase-js'
 
 export default function GuestBanner() {
-  const [session, setSession] = useState<any>(null)
+  const [session, setSession] = useState<Session | null>(null)
   const [status, setStatus] = useState<'loading' | 'ready'>('loading')
 
   useEffect(() => {
@@ -13,7 +14,7 @@ export default function GuestBanner() {
     ;(async () => {
       const { data } = await supabase.auth.getSession()
       if (!active) return
-      setSession(data.session || null)
+      setSession(data.session)
       setStatus('ready')
     })()
     return () => { active = false }

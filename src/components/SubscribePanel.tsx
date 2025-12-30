@@ -3,61 +3,52 @@
 import { useState } from 'react'
 
 export default function SubscribePanel() {
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
+  const [email, setEmail] = useState('')
+  const [status, setStatus] = useState<'idle'|'loading'|'success'|'error'>('idle')
 
-  const plans = [
-    { id: 'basic', name: 'Básico', price: 5 },
-    { id: 'standard', name: 'Standard', price: 10 },
-    { id: 'pro', name: 'Pro', price: 15 }
-  ]
-
-  async function handleSubscribe(planId: string) {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setStatus('loading')
     try {
-      setLoading(true)
-      setMessage('')
-      const res = await fetch('/api/subscriptions/create', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ planId }),
-        credentials: 'include'
-      })
-      const data = await res.json()
-      if (!res.ok) {
-        setMessage(data?.error || 'Error iniciando suscripción')
-        return
-      }
-      if (data.checkoutUrl) {
-        // redirigir a checkout (puede ser página externa)
-        window.location.href = data.checkoutUrl
-      } else {
-        setMessage('No se obtuvo URL de pago')
-      }
-    } catch (err) {
-      setMessage('Error de red')
-    } finally {
-      setLoading(false)
+      // Simular llamada a API
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      setStatus('success')
+      setEmail('')
+    } catch (err) { // eslint-disable-line @typescript-eslint/no-unused-vars
+      setStatus('error')
     }
   }
 
   return (
-    <div className="bg-neutral-800 p-6 rounded space-y-4">
-      <h3 className="text-xl font-semibold">Suscríbete</h3>
-      <p className="text-sm text-gray-300">Planes mensuales orientados a apoyar iniciativas medioambientales.</p>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
-        {plans.map(p => (
-          <div key={p.id} className="p-4 bg-neutral-700 rounded">
-            <div className="text-lg font-semibold">{p.name}</div>
-            <div className="text-2xl font-bold">${p.price}</div>
-            <div className="mt-4">
-              <button disabled={loading} onClick={() => handleSubscribe(p.id)} className="w-full py-2 bg-green-600 rounded">{loading ? 'Procesando...' : 'Suscribirse'}</button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {message && <div className="text-sm text-amber-300 mt-2">{message}</div>}
+    <div className="bg-neutral-800 p-6 rounded-xl">
+      <h3 className="text-xl font-bold text-white mb-2">Mantente informado</h3>
+      <p className="text-gray-400 mb-4">Suscríbete a nuestro boletín para recibir las últimas noticias sobre biodiversidad y eventos.</p>
+      
+      {status === 'success' ? (
+        <div className="text-green-400 bg-green-900/30 p-3 rounded border border-green-800">
+          ¡Gracias por suscribirte! Revisa tu correo pronto.
+        </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="flex gap-2">
+          <input 
+            type="email" 
+            required
+            placeholder="tu@email.com" 
+            className="flex-1 px-4 py-2 rounded bg-neutral-900 border border-neutral-700 focus:border-green-500 outline-none text-white"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            disabled={status === 'loading'}
+          />
+          <button 
+            type="submit"
+            disabled={status === 'loading'}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded font-medium transition-colors"
+          >
+            {status === 'loading' ? '...' : 'Suscribirse'}
+          </button>
+        </form>
+      )}
+      {status === 'error' && <p className="text-red-400 text-sm mt-2">Hubo un error, intenta de nuevo.</p>}
     </div>
   )
 }

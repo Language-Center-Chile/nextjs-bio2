@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
+import Image from 'next/image'
 
 interface Props {
   consultant: null | { id: string; image: string; name: string; specialty: string; email?: string; bio?: string }
@@ -106,7 +107,14 @@ export default function ConsultantSidePanel({ consultant, onClose }: Props) {
           </div>
 
           <div className="mt-4 flex-1 overflow-auto">
-            <img src={consultant.image} alt={consultant.name} className="w-full h-48 object-cover rounded mb-4" />
+            <div className="relative w-full h-48 mb-4">
+              <Image 
+                src={consultant.image} 
+                alt={consultant.name} 
+                fill
+                className="object-cover rounded" 
+              />
+            </div>
             <p className="text-sm text-gray-200">{consultant.bio}</p>
 
             <div className="mt-6">

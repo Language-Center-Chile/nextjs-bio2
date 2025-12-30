@@ -1,5 +1,6 @@
 import Card from './Card'
 import Button from './Button'
+import Image from 'next/image'
 
 const FeaturedContent = () => {
   return (
@@ -10,11 +11,12 @@ const FeaturedContent = () => {
         </span>
         <Card className="overflow-hidden">
           <div className="flex flex-col md:flex-row">
-            <div className="md:w-1/2">
-              <img 
+            <div className="md:w-1/2 relative min-h-[300px]">
+              <Image 
                 src="/assets/featured/chakana.jpg" 
                 alt="Chakana o Cruz Andina"
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
               />
             </div>
             <div className="md:w-1/2 p-6 md:p-8">
