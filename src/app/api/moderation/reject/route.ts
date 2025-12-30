@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import Offer from '@/models/Offer'
-import Consultant from '@/models/Consultant'
-    import User from '@/models/User'
+import { supabase } from '@/lib/supabase'
 import { sendAuthorNotification } from '@/lib/email'
 
 export async function POST(request: NextRequest) {
@@ -17,11 +15,9 @@ export async function POST(request: NextRequest) {
 
     const supabase = await dbConnect()
 
-    let model: any = null
-    if (type === 'product') model = null
-    else if (type === 'offer') model = Offer
-    else if (type === 'consultant') model = Consultant
-    else return NextResponse.json({ error: 'Unknown type' }, { status: 400 })
+    if (!['product', 'offer', 'consultant'].includes(type)) {
+      return NextResponse.json({ error: 'Unknown type' }, { status: 400 })
+    }
 
     let authorId: any = null
     if (type === 'product') {
@@ -30,11 +26,18 @@ export async function POST(request: NextRequest) {
       authorId = sel.data?.seller_id ? String(sel.data.seller_id) : null
       const del = await supabase.from('products').delete().eq('id', id)
       if (del.error) return NextResponse.json({ error: 'Server error' }, { status: 500 })
-    } else {
-      const doc = await model.findById(id)
-      if (!doc) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-      authorId = type === 'offer' ? (doc as any).author : (doc as any).user
-      await doc.remove()
+    } else if (type === 'offer') {
+      const sel = await supabase.from('offers').select('author').eq('id', id).single()
+      if (sel.error) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+      authorId = sel.data?.author ? String(sel.data.author) : null
+      const del = await supabase.from('offers').delete().eq('id', id)
+      if (del.error) return NextResponse.json({ error: 'Server error' }, { status: 500 })
+    } else if (type === 'consultant') {
+      const sel = await supabase.from('consultants').select('user').eq('id', id).single()
+      if (sel.error) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+      authorId = sel.data?.user ? String(sel.data.user) : null
+      const del = await supabase.from('consultants').delete().eq('id', id)
+      if (del.error) return NextResponse.json({ error: 'Server error' }, { status: 500 })
     }
 
     // notify author if possible
@@ -43,9 +46,9 @@ export async function POST(request: NextRequest) {
       if (type === 'product') {
         const user = await supabase.from('users').select('email').eq('id', String(authorId)).single()
         authorEmail = user.data?.email || null
-      } else {
-        const user = await User.findById(authorId).select('email')
-        authorEmail = user?.email
+      } else if (type === 'offer' || type === 'consultant') {
+        const user = await supabase.from('users').select('email').eq('id', String(authorId)).single()
+        authorEmail = user.data?.email || null
       }
     }
 

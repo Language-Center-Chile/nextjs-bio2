@@ -1,13 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import Offer from '@/models/Offer'
 import { getToken } from 'next-auth/jwt'
 import { sendAdminNotification, sendAuthorNotification, isSmtpConfigured } from '@/lib/email'
-import User from '@/models/User'
 
 export async function POST(request: NextRequest) {
   try {
-    await dbConnect()
+    const supabase = await dbConnect()
     const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
     let userId: string | undefined = undefined
     if (token && token.sub) {
@@ -22,13 +20,20 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const offer = new Offer({ ...body, author: userId, isApproved: false })
-    await offer.save()
+    const insertRes = await supabase
+      .from('offers')
+      .insert({ ...body, author: userId, isApproved: false })
+      .select('*')
+      .single()
+    if (insertRes.error) {
+      return NextResponse.json({ error: 'Datos inválidos', details: insertRes.error.message }, { status: 400 })
+    }
+    const offer = insertRes.data
 
     // notify admins to review
     const base = process.env.NEXTAUTH_URL || ''
     const secretParam = process.env.MODERATION_SECRET ? `&secret=${encodeURIComponent(process.env.MODERATION_SECRET)}` : ''
-    const approveUrl = `${base}/api/moderation/approve?type=offer&id=${offer._id}${secretParam}`
+    const approveUrl = `${base}/api/moderation/approve?type=offer&id=${offer.id}${secretParam}`
     await sendAdminNotification({
       subject: `Nueva oferta por aprobar: ${offer.title}`,
       text: `Se creó una nueva oferta: ${offer.title}\nRevisar y aprobar: ${approveUrl}`
@@ -39,9 +44,8 @@ export async function POST(request: NextRequest) {
       let authorEmail: string | undefined = undefined
       if (token && (token as any).email) authorEmail = (token as any).email
       if (!authorEmail) {
-        // ensure DB connected (dbConnect called earlier) and lookup user
-        const authorUser = await User.findById(userId).lean()
-        if (authorUser && (authorUser as any).email) authorEmail = String((authorUser as any).email)
+        const authorUser = await supabase.from('users').select('email').eq('id', userId).single()
+        if (!authorUser.error && authorUser.data && (authorUser.data as any).email) authorEmail = String((authorUser.data as any).email)
       }
 
       if (authorEmail) {
