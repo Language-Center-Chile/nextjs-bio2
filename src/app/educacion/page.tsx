@@ -1,21 +1,26 @@
 import HeroEducacion from '@/components/HeroEducacion';
 import CompartirRecursoSection from '@/components/CompartirRecursoSection';
 import dbConnect from '@/lib/db'
-import Resource from '@/models/Resource'
+import { supabase } from '@/lib/supabase'
 
 export default async function EducacionPage() {
   let recursos: any[] = []
 
   try {
     await dbConnect()
-    recursos = await Resource.find({ isActive: true }).sort({ createdAt: -1 }).lean()
+    const { data, error } = await supabase
+      .from('resources')
+      .select('id,title,description,image,link,isActive,created_at')
+      .eq('isActive', true)
+      .order('created_at', { ascending: false })
+    if (!error && data) recursos = data
   } catch (err) {
     console.error('Error fetching resources:', err)
   }
 
   // serializar
-  const serialized = recursos.map(r => ({
-    _id: r._id.toString(),
+  const serialized = recursos.map((r: any) => ({
+    _id: String(r.id),
     title: r.title,
     description: r.description,
     image: r.image,

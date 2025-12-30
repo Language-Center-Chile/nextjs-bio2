@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import Subscription from '@/models/Subscription'
 import { verifyFlowWebhook } from '@/lib/payments/flow'
 
 export async function POST(request: NextRequest) {
@@ -10,7 +9,7 @@ export async function POST(request: NextRequest) {
     if (!verification.ok) return NextResponse.json({ error: 'Invalid webhook signature: ' + verification.reason }, { status: 401 })
 
     const event = verification.payload
-    await dbConnect()
+    const supabase = await dbConnect()
 
     // Manejar eventos esperados (placeholder names)
     // Ejemplos: event.type = 'subscription.created' | 'subscription.activated' | 'subscription.cancelled'
@@ -18,29 +17,28 @@ export async function POST(request: NextRequest) {
     const data = event.data || {}
 
     if (type === 'subscription.created') {
-      // guardar providerId if present
-      const sub = await Subscription.findOne({ _id: data.metadata?.subscriptionId })
-      if (sub) {
-        sub.providerId = data.id || sub.providerId
-        await sub.save()
+      const sid = data.metadata?.subscriptionId
+      if (sid) {
+        await supabase
+          .from('subscriptions')
+          .update({ providerId: data.id })
+          .eq('id', sid)
       }
     } else if (type === 'subscription.activated' || type === 'subscription.paid') {
-      // activar suscripción
       const providerId = data.id
-      const sub = await Subscription.findOne({ providerId })
-      if (sub) {
-        sub.status = 'active'
-        sub.startedAt = new Date(data.start_at || Date.now())
-        if (data.current_period_end) sub.currentPeriodEnd = new Date(data.current_period_end)
-        await sub.save()
-      }
+      const update: any = { status: 'active' }
+      if (data.start_at) update.startedAt = new Date(data.start_at).toISOString()
+      if (data.current_period_end) update.currentPeriodEnd = new Date(data.current_period_end).toISOString()
+      await supabase
+        .from('subscriptions')
+        .update(update)
+        .eq('providerId', providerId)
     } else if (type === 'subscription.cancelled' || type === 'subscription.expired') {
       const providerId = data.id
-      const sub = await Subscription.findOne({ providerId })
-      if (sub) {
-        sub.status = 'cancelled'
-        await sub.save()
-      }
+      await supabase
+        .from('subscriptions')
+        .update({ status: type === 'subscription.expired' ? 'expired' : 'cancelled' })
+        .eq('providerId', providerId)
     }
 
     return NextResponse.json({ ok: true })

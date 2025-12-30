@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import Product from '@/models/Product'
-import Offer from '@/models/Offer'
-import Consultant from '@/models/Consultant'
-import User from '@/models/User'
 import { sendAuthorNotification } from '@/lib/email'
 
 export async function GET(request: NextRequest) {
@@ -14,43 +10,49 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    await dbConnect()
+    const supabase = await dbConnect()
     const type = url.searchParams.get('type')
     const id = url.searchParams.get('id')
     if (!type || !id) return NextResponse.json({ error: 'Missing params' }, { status: 400 })
 
-    let model: any = null
-    if (type === 'product') model = Product
-    else if (type === 'offer') model = Offer
-    else if (type === 'consultant') model = Consultant
-    else return NextResponse.json({ error: 'Unknown type' }, { status: 400 })
+    if (!['product', 'offer', 'consultant'].includes(type)) {
+      return NextResponse.json({ error: 'Unknown type' }, { status: 400 })
+    }
 
-    const doc = await model.findById(id)
-    if (!doc) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-
-    doc.isApproved = true
-    await doc.save()
+    let sellerId: string | null = null
+    let doc: any = null
+    if (type === 'product') {
+      const res = await supabase.from('products').update({ is_approved: true }).eq('id', id).select('seller_id').single()
+      if (res.error) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+      sellerId = res.data?.seller_id ? String(res.data.seller_id) : null
+    } else if (type === 'offer') {
+      const res = await supabase.from('offers').update({ isApproved: true }).eq('id', id).select('author').single()
+      if (res.error) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+      doc = res.data
+    } else if (type === 'consultant') {
+      const res = await supabase.from('consultants').update({ isApproved: true }).eq('id', id).select('user').single()
+      if (res.error) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+      doc = res.data
+    }
 
     // notify author if possible
     let authorEmail = null
     if (type === 'product') {
-      // seller is an ObjectId
-      const sellerId = (doc as any).seller
       if (sellerId) {
-        const seller = await User.findById(sellerId).select('email name')
-        authorEmail = seller?.email
+        const seller = await supabase.from('users').select('email').eq('id', sellerId).single()
+        authorEmail = seller.data?.email || null
       }
     } else if (type === 'offer') {
       const authorId = (doc as any).author
       if (authorId) {
-        const author = await User.findById(authorId).select('email')
-        authorEmail = author?.email
+        const author = await supabase.from('users').select('email').eq('id', String(authorId)).single()
+        authorEmail = author.data?.email || null
       }
     } else if (type === 'consultant') {
       const userId = (doc as any).user
       if (userId) {
-        const user = await User.findById(userId).select('email')
-        authorEmail = user?.email
+        const user = await supabase.from('users').select('email').eq('id', String(userId)).single()
+        authorEmail = user.data?.email || null
       }
     }
 
