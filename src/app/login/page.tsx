@@ -77,7 +77,7 @@ export default function LoginPage() {
         setPendingVerification(true)
         setError('Tu correo aún no está confirmado. Revisa tu bandeja y spam.')
       } else {
-        setError(err.message || 'Credenciales inválidas')
+        setError(err?.message || 'Credenciales inválidas')
       }
     } finally {
       setIsLoading(false)
@@ -95,7 +95,7 @@ export default function LoginPage() {
       if (resendError) throw resendError
       setResendStatus('Correo de confirmación reenviado. Revisa tu bandeja y spam.')
     } catch (err: any) {
-      setResendStatus(err.message || 'No se pudo reenviar el correo de confirmación')
+      setResendStatus(err?.message || 'No se pudo reenviar el correo de confirmación')
     } finally {
       setIsLoading(false)
     }
@@ -108,7 +108,7 @@ export default function LoginPage() {
       const { error: oauthError } = await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin } })
       if (oauthError) throw oauthError
     } catch (error: any) {
-      setError(error.message || 'Error al iniciar sesión con Google')
+      setError(error?.message || 'Error al iniciar sesión con Google')
     } finally {
       setIsLoading(false)
     }

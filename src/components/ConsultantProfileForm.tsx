@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { supabase } from '@/lib/supabase'
 
 interface Props {
   onSaved?: () => void
@@ -31,9 +32,15 @@ export default function ConsultantProfileForm({ onSaved }: Props) {
       availability
     }
 
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token
+
     const res = await fetch('/api/consultants', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify(body),
       credentials: 'include'
     })
@@ -56,7 +63,7 @@ export default function ConsultantProfileForm({ onSaved }: Props) {
         </div>
         <div>
           <label className="block text-sm font-medium">Frecuencia</label>
-          <select value={rateFrequency} onChange={e=>setRateFrequency(e.target.value as any)} className="w-full mt-1 p-2 rounded bg-neutral-800">
+          <select value={rateFrequency} onChange={e=>setRateFrequency(e.target.value as 'hour'|'day'|'month')} className="w-full mt-1 p-2 rounded bg-neutral-800">
             <option value="hour">Hora</option>
             <option value="day">Día</option>
             <option value="month">Mes</option>

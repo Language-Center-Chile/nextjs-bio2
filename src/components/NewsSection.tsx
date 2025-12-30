@@ -1,60 +1,43 @@
-import Image from 'next/image'
-import Link from 'next/link'
-
-interface ContentCardProps {
-  image: string
-  alt: string
-  title: string
-  description: string
-  link: string
-}
-
-import ContentCard from './ui/ContentCard'
+import Cards from './ui/Cards';
 
 const NewsSection = () => {
-  const articles = [
+  const news = [
     {
-      image: '/assets/news-1.jpg',
-      alt: 'Conservación de Especies Nativas',
-      title: 'Conservación de Especies Nativas',
-      description: 'Nuevos proyectos para proteger la flora endémica de Chile.',
-      link: '/noticias/conservacion-especies'
+      imageSrc: "https://images.unsplash.com/photo-1542601906990-b4d3fb7d5763?w=500&q=80",
+      imageAlt: "Reforestación en la Patagonia",
+      title: "Reforestación en la Patagonia",
+      description: "Iniciativa para plantar 1 millón de árboles nativos en la región de Aysén.",
+      href: "/noticias/reforestacion-patagonia",
     },
     {
-      image: '/assets/blog-1.png',
-      alt: 'Guía de Compostaje',
-      title: 'Guía de Compostaje',
-      description: 'Aprende a crear tu propio compost en casa.',
-      link: '/noticias/guia-compostaje'
+      imageSrc: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=500&q=80",
+      imageAlt: "Conservación de Humedales",
+      title: "Conservación de Humedales",
+      description: "Nuevas medidas para proteger los humedales urbanos en Valdivia.",
+      href: "/noticias/conservacion-humedales",
+    },
+  ];
+
+  const blog = [
+    {
+      imageSrc: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=500&q=80",
+      imageAlt: "Guía de Compostaje",
+      title: "Guía de Compostaje en Casa",
+      description: "Aprende a transformar tus residuos orgánicos en abono para tus plantas.",
+      href: "/blog/guia-compostaje",
     },
     {
-      image: '/assets/news-2.jpg',
-      alt: 'Iniciativas Sustentables',
-      title: 'Iniciativas Sustentables',
-      description: 'Comunidades locales implementan proyectos verdes.',
-      link: '/noticias/iniciativas-sustentables'
+      imageSrc: "https://images.unsplash.com/photo-1530836369250-ef72a3f5cda8?w=500&q=80",
+      imageAlt: "Energía Solar",
+      title: "Beneficios de la Energía Solar",
+      description: "Cómo la energía solar puede reducir tu huella de carbono y ahorrar dinero.",
+      href: "/blog/energia-solar",
     },
-    {
-      image: '/assets/blog-2.jpg',
-      alt: 'Biodiversidad Urbana',
-      title: 'Biodiversidad Urbana',
-      description: 'Cómo crear espacios verdes en la ciudad.',
-      link: '/noticias/biodiversidad-urbana'
-    }
-  ]
+  ];
 
   return (
-    <section className="py-12 ">
-      <div className="container mx-auto px-4">
-        <h2 className="text-2xl font-bold mb-8 ml-60 text-left text-white">Últimas Noticias y Artículos</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {articles.map((item, index) => (
-            <ContentCard key={index} {...item} />
-          ))}
-        </div>
-      </div>
-    </section>
-  )
-}
+    <Cards title="Noticias y Blog" news={news} blog={blog} />
+  );
+};
 
-export default NewsSection
+export default NewsSection;

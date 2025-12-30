@@ -1,5 +1,10 @@
 import ProfileLayout from '@/components/ProfileLayout'
+import ProfileForm from '@/components/ProfileForm'
 
 export default function PerfilPage() {
-  return <ProfileLayout />
+  return (
+    <ProfileLayout>
+      <ProfileForm />
+    </ProfileLayout>
+  )
 }

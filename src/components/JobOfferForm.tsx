@@ -12,7 +12,7 @@ export default function JobOfferForm({ onCreated }: Props) {
   const [requirements, setRequirements] = useState('')
   const [salaryMin, setSalaryMin] = useState<number | undefined>(undefined)
   const [salaryMax, setSalaryMax] = useState<number | undefined>(undefined)
-  const [currency, setCurrency] = useState('USD')
+  const [currency] = useState('USD') // setCurrency unused
   const [country, setCountry] = useState('')
   const [city, setCity] = useState('')
   const [modality, setModality] = useState<'presencial'|'remoto'|'híbrido'>('remoto')
@@ -36,9 +36,15 @@ export default function JobOfferForm({ onCreated }: Props) {
       tags: tags.split(',').map(t => t.trim()).filter(Boolean)
     }
 
+    const { data: { session } } = await supabase.auth.getSession()
+    const token = session?.access_token
+
     const res = await fetch('/api/offers', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
       body: JSON.stringify(body),
       credentials: 'include'
     })
@@ -102,7 +108,7 @@ export default function JobOfferForm({ onCreated }: Props) {
       <div className="grid grid-cols-2 gap-2">
         <div>
           <label className="block text-sm font-medium">Modalidad</label>
-          <select value={modality} onChange={e=>setModality(e.target.value as any)} className="w-full mt-1 p-2 rounded bg-neutral-800">
+          <select value={modality} onChange={e=>setModality(e.target.value as 'presencial'|'remoto'|'híbrido')} className="w-full mt-1 p-2 rounded bg-neutral-800">
             <option value="presencial">Presencial</option>
             <option value="remoto">Remoto</option>
             <option value="híbrido">Híbrido</option>
@@ -110,7 +116,7 @@ export default function JobOfferForm({ onCreated }: Props) {
         </div>
         <div>
           <label className="block text-sm font-medium">Tipo</label>
-          <select value={employmentType} onChange={e=>setEmploymentType(e.target.value as any)} className="w-full mt-1 p-2 rounded bg-neutral-800">
+          <select value={employmentType} onChange={e=>setEmploymentType(e.target.value as 'full-time'|'part-time'|'contract'|'freelance'|'other')} className="w-full mt-1 p-2 rounded bg-neutral-800">
             <option value="full-time">Full-time</option>
             <option value="part-time">Part-time</option>
             <option value="contract">Contract</option>

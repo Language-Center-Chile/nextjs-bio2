@@ -18,36 +18,6 @@ interface CardsProps {
   }>;
 }
 
-const newsItems = [
-  {
-    imageSrc: "/assets/blog-1.jpg",
-    title: "Título Noticia 1",
-    description: "Descripción de la noticia 1",
-    href: "/noticias/1"
-  },
-  {
-    imageSrc: "/assets/blog-2.jpg",
-    title: "Título Noticia 2",
-    description: "Descripción de la noticia 2",
-    href: "/noticias/2"
-  }
-];
-
-const blogItems = [
-  {
-    imageSrc: "/assets/new-1.jpg",
-    title: "Título Blog 1",
-    description: "Descripción del blog 1",
-    href: "/blog/1"
-  },
-  {
-    imageSrc: "/assets/new-2.jpg",
-    title: "Título Blog 2",
-    description: "Descripción del blog 2",
-    href: "/blog/2"
-  }
-];
-
 const Cards = ({ title, news, blog }: CardsProps) => {
   return (
    <section className="py-16 bg-gray-50">

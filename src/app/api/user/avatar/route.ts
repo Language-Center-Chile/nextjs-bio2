@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server'
-import { getToken } from 'next-auth/jwt'
+import { getAuthUser } from '@/lib/auth-helper'
 import dbConnect from '../../../../lib/db'
 
 export async function POST(req: NextRequest) {
@@ -7,7 +7,7 @@ export async function POST(req: NextRequest) {
   const { image } = body
   if (!image) return NextResponse.json({ error: 'No image provided' }, { status: 400 })
 
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET })
+  const token = await getAuthUser(req)
   if (!token || !token.sub) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
 
   await dbConnect()
@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
     if (!data) return NextResponse.json({ error: 'User not found' }, { status: 404 })
     return NextResponse.json({ ok: true })
   } catch (err) {
+    console.error('Avatar update error', err)
     return NextResponse.json({ error: 'DB error' }, { status: 500 })
   }
 }

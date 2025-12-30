@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import { getToken } from 'next-auth/jwt'
-import { createFlowCheckout } from '@/lib/payments/flow'
+import { getAuthUser } from '@/lib/auth-helper'
 
 export async function POST(request: NextRequest) {
   try {
     const supabase = await dbConnect()
-    const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
+    const token = await getAuthUser(request)
     if (!token || !token.sub) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await request.json()
@@ -34,26 +33,27 @@ export async function POST(request: NextRequest) {
     }
     const sub = insertRes.data
 
-    // Crear checkout en Flow
+    // Construir URL de redirección a Flow (checkout simple)
     const successUrl = `${process.env.NEXTAUTH_URL || ''}/subscriptions/success?sid=${sub.id}`
     const cancelUrl = `${process.env.NEXTAUTH_URL || ''}/subscriptions/cancel?sid=${sub.id}`
 
-    const flowResp = await createFlowCheckout(planId, successUrl, cancelUrl, { subscriptionId: String(sub.id), userId: token.sub })
+    // Ejemplo: enviar al usuario al portal de pago de Flow con los parámetros básicos
+    const flowBase = process.env.FLOW_CHECKOUT_URL || 'https://sandbox.flow.cl/app/web/pagar'
+    const params = new URLSearchParams({
+      planId,
+      planName: plan.name,
+      amount: String(plan.price),
+      currency: 'USD',
+      successUrl,
+      cancelUrl,
+      subscriptionId: String(sub.id),
+      userId: token.sub
+    })
+    const checkoutUrl = `${flowBase}?${params.toString()}`
 
-    // Guardar providerId si viene
-    if (flowResp.providerSubscriptionId) {
-      const updateRes = await supabase
-        .from('subscriptions')
-        .update({ providerId: flowResp.providerSubscriptionId })
-        .eq('id', sub.id)
-      if (updateRes.error) {
-        console.error('[api/subscriptions/create] providerId update error', updateRes.error)
-      }
-    }
-
-    return NextResponse.json({ ok: true, checkoutUrl: flowResp.checkoutUrl })
+    return NextResponse.json({ ok: true, checkoutUrl })
   } catch (err: any) {
     console.error('[api/subscriptions/create] error', err)
-    return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 })
+    return NextResponse.json({ error: err?.message || 'Server error' }, { status: 500 })
   }
 }

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaHome, FaShoppingCart, FaUserTie, FaBook, FaHandsHelping, FaIdBadge, FaEnvelope } from "react-icons/fa";
+import { FaHome,FaUserTie,FaIdBadge } from "react-icons/fa";
 
 const navItems = [
   { label: "Inicio", href: "/", icon: <FaHome /> },

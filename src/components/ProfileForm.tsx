@@ -9,6 +9,16 @@ type Props = {
   onEditingChange?: (v: boolean) => void
 }
 
+interface UserMetadata {
+  name?: string
+  full_name?: string
+  address?: string
+  postalCode?: string
+  bio?: string
+  avatar_url?: string
+  picture?: string
+}
+
 export default function ProfileForm({ editing: editingProp, onEditingChange }: Props = {}) {
   const [user, setUser] = useState<any>(null)
   const router = useRouter()
@@ -32,31 +42,29 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
     bio: ''
   })
 
+  // Avatar state
+  const [preview, setPreview] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+
   useEffect(() => {
     ;(async () => {
       const { data } = await supabase.auth.getUser()
       const u = data.user
       setUser(u)
-      const displayName =
-        (u?.user_metadata as any)?.name ||
-        (u?.user_metadata as any)?.full_name ||
-        ''
+      const metadata = u?.user_metadata as UserMetadata | undefined
+      const displayName = metadata?.name || metadata?.full_name || ''
       setForm({
         name: displayName,
         address: '',
         postalCode: '',
         bio: displayName ? `Hola, soy ${displayName}` : ''
       })
-      setPreview((u?.user_metadata as any)?.avatar_url ?? (u?.user_metadata as any)?.picture ?? null)
+      setPreview(metadata?.avatar_url ?? metadata?.picture ?? null)
     })()
   }, [])
 
   const [isSaving, setIsSaving] = useState(false)
   const [message, setMessage] = useState('')
-
-  // Avatar state
-  const [preview, setPreview] = useState<string | null>(null)
-  const [uploading, setUploading] = useState(false)
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
     const { name, value } = e.target
@@ -113,9 +121,15 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
     setMessage('')
 
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+
       const res = await fetch('/api/user/avatar', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         credentials: 'include',
         body: JSON.stringify({ image: preview })
       })
@@ -135,13 +149,15 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
   }
 
   function onCancel() {
+    const metadata = user?.user_metadata as UserMetadata | undefined
+    const displayName = metadata?.name || metadata?.full_name || ''
     setForm({
-      name: (user?.user_metadata as any)?.name || (user?.user_metadata as any)?.full_name || '',
-      address: (user?.user_metadata as any)?.address || '',
-      postalCode: (user?.user_metadata as any)?.postalCode || '',
-      bio: (user?.user_metadata as any)?.bio || (user?.user_metadata as any)?.name ? `Hola, soy ${(user?.user_metadata as any)?.name}` : ''
+      name: displayName,
+      address: metadata?.address || '',
+      postalCode: metadata?.postalCode || '',
+      bio: metadata?.bio || (displayName ? `Hola, soy ${displayName}` : '')
     })
-    setPreview((user?.user_metadata as any)?.avatar_url ?? (user?.user_metadata as any)?.picture ?? null)
+    setPreview(metadata?.avatar_url ?? metadata?.picture ?? null)
     setMessage('')
     setEditing(false)
   }
@@ -179,7 +195,7 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
           </div>
         </div>
 
-        <div className="mt-6 text-sm text-gray-400">Para cambiar la foto o los datos, pulsa "Editar".</div>
+        <div className="mt-6 text-sm text-gray-400">Para cambiar la foto o los datos, pulsa &quot;Editar&quot;.</div>
       </div>
     )
   }
@@ -207,7 +223,11 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
             <button type="button" onClick={handleUploadAvatar} disabled={uploading || !preview} className="bg-green-600 px-3 py-1 rounded text-white text-sm disabled:opacity-50">
               {uploading ? 'Subiendo...' : 'Subir foto'}
             </button>
-            <button type="button" onClick={() => { setPreview((user?.user_metadata as any)?.avatar_url ?? (user?.user_metadata as any)?.picture ?? null); setMessage('') }} className="bg-neutral-800 px-3 py-1 rounded text-white text-sm">
+            <button type="button" onClick={() => {
+              const metadata = user?.user_metadata as UserMetadata | undefined
+              setPreview(metadata?.avatar_url ?? metadata?.picture ?? null); 
+              setMessage('') 
+            }} className="bg-neutral-800 px-3 py-1 rounded text-white text-sm">
               Restaurar
             </button>
           </div>

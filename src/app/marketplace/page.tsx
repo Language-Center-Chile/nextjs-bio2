@@ -4,25 +4,6 @@ import SidebarFilters from '@/components/ui/SidebarFilters'
 import dbConnect from '@/lib/db'
 import { supabase } from '@/lib/supabase'
 
-interface ProductType {
-  _id: string
-  title: string
-  description: string
-  price: number
-  category: string
-  images: string[]
-  seller: {
-    _id: string
-    name: string
-    avatar?: string
-  }
-  location: {
-    country: string
-    city: string
-  }
-  createdAt: string
-}
-
 interface MarketplacePageProps {
   searchParams: Promise<{
     page?: string
@@ -44,26 +25,6 @@ async function getProducts(searchParams: Awaited<MarketplacePageProps['searchPar
 
     const page = parseInt(searchParams.page || '1')
     const limit = 12
-    const category = searchParams.category
-    const search = searchParams.search
-    const country = searchParams.country
-    const city = searchParams.city
-
-    const filters: any = { isActive: true }
-    
-    if (category && category !== 'all') {
-      filters.category = category
-    }
-    
-    if (search) {
-      filters.$or = [
-        { title: { $regex: search, $options: 'i' } },
-        { description: { $regex: search, $options: 'i' } }
-      ]
-    }
-    
-    if (country) filters['location.country'] = country
-    if (city) filters['location.city'] = city
 
     const skip = (page - 1) * limit
 
@@ -76,14 +37,35 @@ async function getProducts(searchParams: Awaited<MarketplacePageProps['searchPar
     const totalProducts = countRes.count || 0
     const totalPages = Math.ceil(totalProducts / limit)
 
-    const sellerIds = Array.from(new Set(productsData.map((p: any) => p.seller_id).filter(Boolean)))
-    const sellersMap: Record<string, any> = {}
+    interface RawProduct {
+      id: string
+      seller_id: string
+      title: string
+      description: string
+      price: number
+      category: string
+      images: string[]
+      country?: string
+      city?: string
+      location?: { country: string; city: string }
+      created_at: string
+    }
+
+    interface RawUser {
+      id: string
+      name: string
+      avatar?: string
+    }
+
+    const sellerIds = Array.from(new Set(productsData.map((p) => (p as RawProduct).seller_id).filter(Boolean)))
+    const sellersMap: Record<string, RawUser> = {}
     if (sellerIds.length > 0) {
-      const sellersRes = await supabase.from('users').select('id,name,avatar').in('id', sellerIds as any)
-      const sellers = sellersRes.data || []
+      const sellersRes = await supabase.from('users').select('id,name,avatar').in('id', sellerIds)
+      const sellers = (sellersRes.data || []) as RawUser[]
       for (const s of sellers) sellersMap[String(s.id)] = s
     }
-    const serializedProducts = productsData.map((product: any) => {
+    const serializedProducts = productsData.map((p) => {
+      const product = p as RawProduct
       const seller = product.seller_id ? sellersMap[String(product.seller_id)] : null
       return {
         _id: String(product.id),

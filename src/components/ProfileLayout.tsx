@@ -1,130 +1,95 @@
 'use client'
 
-import { useState } from 'react'
-import ProfileForm from '@/components/ProfileForm'
-import Link from 'next/link'
+import { ReactNode, useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import ProductForm from '@/components/ProductForm'
-import JobOfferForm from '@/components/JobOfferForm'
-import ConsultantProfileForm from '@/components/ConsultantProfileForm'
 
-export default function ProfileLayout() {
-  const [user] = useState<any>(() => null)
-  const [editing, setEditing] = useState(false)
-  const [showProductForm, setShowProductForm] = useState(false)
-  const [showJobOfferForm, setShowJobOfferForm] = useState(false)
-  const [showConsultantForm, setShowConsultantForm] = useState(false)
+interface UserMetadata {
+  name?: string
+  full_name?: string
+  avatar_url?: string
+  picture?: string
+}
 
-  function handleEditClick() {
-    const next = !editing
-    setEditing(next)
-    if (next) {
-      setShowProductForm(false)
-      setShowJobOfferForm(false)
-      setShowConsultantForm(false)
-    }
+interface UserIdentity {
+  identity_data?: {
+    name?: string
+    full_name?: string
+    avatar_url?: string
+    picture?: string
   }
+}
 
-  function handleAddProductClick() {
-    const next = !showProductForm
-    setShowProductForm(next)
-    if (next) {
-      setEditing(false)
-      setShowJobOfferForm(false)
-      setShowConsultantForm(false)
-    }
-  }
+export default function ProfileLayout({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
 
-  function handleJobOfferClick() {
-    const next = !showJobOfferForm
-    setShowJobOfferForm(next)
-    if (next) {
-      setEditing(false)
-      setShowProductForm(false)
-      setShowConsultantForm(false)
-    }
-  }
+  useEffect(() => {
+    let active = true
+    ;(async () => {
+      const { data } = await supabase.auth.getSession()
+      if (!active) return
+      if (!data.session) {
+        router.push('/login')
+        return
+      }
+      setUser(data.session.user)
+      setLoading(false)
+    })()
+    return () => { active = false }
+  }, [router])
 
-  function handleConsultantClick() {
-    const next = !showConsultantForm
-    setShowConsultantForm(next)
-    if (next) {
-      setEditing(false)
-      setShowProductForm(false)
-      setShowJobOfferForm(false)
-    }
-  }
+  if (loading) return <div className="p-8 text-center">Cargando perfil...</div>
+  if (!user) return null
+
+  const meta = (user.user_metadata || {}) as UserMetadata
+  const identities = (user.identities || []) as unknown as UserIdentity[]
+  const identity = identities.length > 0 ? identities[0].identity_data || {} : {}
+  const name = meta.name || meta.full_name || identity.name || identity.full_name || user.email?.split('@')[0] || 'Usuario'
+  // eslint-disable-next-line @next/next/no-img-element
+  const avatar = meta.avatar_url || meta.picture || identity.avatar_url || identity.picture || null
 
   return (
-    <div className="min-h-screen bg-neutral-900 text-white py-6 px-4">
-      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-6">
-        <aside className="bg-neutral-800 p-4 rounded-lg">
-          <div className="flex flex-col items-center gap-3">
-            {(user as any)?.user_metadata?.picture ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={(user as any).user_metadata.picture} alt="avatar" className="w-24 h-24 rounded-full object-cover" />
-            ) : (
-              <div className="w-24 h-24 rounded-full bg-neutral-700 grid place-items-center text-white">U</div>
-            )}
-
-            <div className="text-lg font-semibold">{(user as any)?.user_metadata?.name || (user as any)?.user_metadata?.full_name || '—'}</div>
-            <div className="text-sm text-gray-400">{(user as any)?.email || '—'}</div>
+    <div className="max-w-4xl mx-auto p-4 md:p-8">
+      <div className="mb-8 flex items-center gap-4">
+        {avatar ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={avatar} alt={name} className="w-20 h-20 rounded-full object-cover border-2 border-green-600" />
+        ) : (
+          <div className="w-20 h-20 rounded-full bg-neutral-700 grid place-items-center text-2xl font-bold">
+            {name[0].toUpperCase()}
           </div>
+        )}
+        <div>
+          <h1 className="text-3xl font-bold">{name}</h1>
+          <p className="text-gray-400">{user.email}</p>
+        </div>
+      </div>
 
-          <div className="mt-6 space-y-3">
-            <button
-              onClick={handleEditClick}
-              className={`w-full py-2 rounded font-semibold ${editing ? 'bg-amber-400 text-black' : 'bg-amber-500 text-black'}`}
-            >
-              Editar Perfil
-            </button>
-
-            <button
-              onClick={handleAddProductClick}
-              className={`block w-full text-center mt-2 py-2 rounded font-semibold ${showProductForm ? 'bg-green-500' : 'bg-green-600'}`}
-            >
-              Agregar Producto
-            </button>
-
-            <button
-              onClick={handleJobOfferClick}
-              className={`block w-full text-center mt-2 py-2 rounded font-semibold ${showJobOfferForm ? 'bg-blue-500' : 'bg-blue-600'}`}
-            >
-              Buscamos Consultores
-            </button>
-
-            <button
-              onClick={handleConsultantClick}
-              className={`block w-full text-center mt-2 py-2 rounded font-semibold ${showConsultantForm ? 'bg-purple-500' : 'bg-purple-600'}`}
-            >
-              Mi Perfil de Consultor
-            </button>
-
-            <div className="mt-4 text-sm text-gray-400">
-              Aquí puedes editar tu perfil, agregar productos o publicar/registrarte como consultor.
-            </div>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <aside className="space-y-2">
+          <nav className="flex flex-col gap-2 text-sm">
+            <a href="/perfil" className="px-3 py-2 rounded bg-neutral-800 hover:bg-neutral-700 font-medium text-green-400">
+              Información General
+            </a>
+            <a href="/perfil/seguridad" className="px-3 py-2 rounded hover:bg-neutral-800 text-gray-300">
+              Seguridad
+            </a>
+            <a href="/perfil/notificaciones" className="px-3 py-2 rounded hover:bg-neutral-800 text-gray-300">
+              Notificaciones
+            </a>
+            <a href="/mis-publicaciones" className="px-3 py-2 rounded hover:bg-neutral-800 text-gray-300 mt-4 border-t border-neutral-700 pt-4">
+              Mis Publicaciones
+            </a>
+            <a href="/membresia" className="px-3 py-2 rounded hover:bg-neutral-800 text-gray-300">
+              Membresía
+            </a>
+          </nav>
         </aside>
 
         <main className="md:col-span-3">
-          {showProductForm ? (
-            <div className="p-4">
-              <h2 className="text-xl font-semibold mb-4">Agregar producto</h2>
-              <ProductForm onCreated={() => setShowProductForm(false)} />
-            </div>
-          ) : showJobOfferForm ? (
-            <div className="p-4">
-              <h2 className="text-xl font-semibold mb-4">Publicar oferta (Buscamos Consultores)</h2>
-              <JobOfferForm onCreated={() => setShowJobOfferForm(false)} />
-            </div>
-          ) : showConsultantForm ? (
-            <div className="p-4">
-              <h2 className="text-xl font-semibold mb-4">Publicar mi perfil de consultor</h2>
-              <ConsultantProfileForm onSaved={() => setShowConsultantForm(false)} />
-            </div>
-          ) : (
-            <ProfileForm editing={editing} onEditingChange={setEditing} />
-          )}
+          {children}
         </main>
       </div>
     </div>

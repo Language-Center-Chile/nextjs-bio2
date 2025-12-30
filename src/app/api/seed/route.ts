@@ -1,8 +1,7 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import { supabase } from '@/lib/supabase'
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     const sb = await dbConnect()
 
@@ -109,7 +108,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error('Error seeding database:', error)
     return NextResponse.json(
-      { error: 'Error al poblar la base de datos', details: error.message }, 
+      { error: 'Error al poblar la base de datos', details: error?.message || String(error) }, 
       { status: 500 }
     )
   }
