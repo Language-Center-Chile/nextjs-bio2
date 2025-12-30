@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import Product from '@/models/Product'
-import User from '@/models/User'
 
 // GET /api/products/[id] - Obtener producto específico
 export async function GET(
@@ -9,9 +7,12 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    await dbConnect()
-
-    const product = await Product.findById(params.id).lean()
+    const supabase = await dbConnect()
+    const res = await supabase.from('products').select('*').eq('id', params.id).single()
+    if (res.error && res.error.code !== 'PGRST116') {
+      return NextResponse.json({ error: 'Error de base de datos' }, { status: 500 })
+    }
+    const product = res.data
 
     if (!product) {
       return NextResponse.json(
@@ -20,13 +21,13 @@ export async function GET(
       )
     }
 
-    // populate seller manually
-    if ((product as any).seller) {
-      const seller = await User.findById((product as any).seller).select('name email avatar bio')
-      ;(product as any).seller = seller
+    let seller: any = null
+    if (product && (product as any).seller_id) {
+      const sellerRes = await supabase.from('users').select('id,name,email,avatar,bio').eq('id', (product as any).seller_id).single()
+      if (!sellerRes.error) seller = sellerRes.data
     }
 
-    return NextResponse.json(product)
+    return NextResponse.json(product ? { ...product, seller } : null)
 
   } catch (error) {
     console.error('Error fetching product:', error)
@@ -43,15 +44,18 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   try {
-    await dbConnect()
-
+    const supabase = await dbConnect()
     const body = await request.json()
-    
-    const product = await Product.findByIdAndUpdate(
-      params.id,
-      body,
-      { new: true, runValidators: true }
-    ).populate('seller', 'name email avatar')
+    const updateRes = await supabase.from('products').update(body).eq('id', params.id).select('*').single()
+    if (updateRes.error) {
+      return NextResponse.json({ error: 'Datos de producto inválidos', details: updateRes.error.message }, { status: 400 })
+    }
+    const product = updateRes.data
+    let seller: any = null
+    if (product && (product as any).seller_id) {
+      const sellerRes = await supabase.from('users').select('id,name,email,avatar').eq('id', (product as any).seller_id).single()
+      if (!sellerRes.error) seller = sellerRes.data
+    }
 
     if (!product) {
       return NextResponse.json(
@@ -60,18 +64,11 @@ export async function PUT(
       )
     }
 
-    return NextResponse.json(product)
+    return NextResponse.json({ ...product, seller })
 
   } catch (error: any) {
     console.error('Error updating product:', error)
     
-    if (error.name === 'ValidationError') {
-      return NextResponse.json(
-        { error: 'Datos de producto inválidos', details: error.errors }, 
-        { status: 400 }
-      )
-    }
-
     return NextResponse.json(
       { error: 'Error interno del servidor' }, 
       { status: 500 }
@@ -85,11 +82,14 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await dbConnect()
+    const supabase = await dbConnect()
+    const delRes = await supabase.from('products').delete().eq('id', params.id)
+    if (delRes.error) {
+      return NextResponse.json({ error: 'Error de base de datos' }, { status: 500 })
+    }
+    const count = delRes.count ?? null
 
-    const product = await Product.findByIdAndDelete(params.id)
-
-    if (!product) {
+    if (count === 0) {
       return NextResponse.json(
         { error: 'Producto no encontrado' }, 
         { status: 404 }

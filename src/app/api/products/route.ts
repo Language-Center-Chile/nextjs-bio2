@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import Product from '@/models/Product'
-import User from '@/models/User'
 import { getToken } from 'next-auth/jwt'
 import { sendAdminNotification, sendAuthorNotification } from '@/lib/email'
 
@@ -21,25 +19,23 @@ export async function POST(request: NextRequest) {
 
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    await dbConnect()
+    const supabase = await dbConnect()
 
     const body = await request.json()
-    // Asegurar seller desde token / fallback
-    const productData = { ...body, seller: userId, isApproved: false }
-
-    const product = new Product(productData)
-    await product.save()
-
-    // Poblar el seller antes de retornar
-    // Evitar populate por posibles diferencias de instancia mongoose en tiempo de ejecución.
-    const sellerDoc = await User.findById(userId).select('name email avatar')
-    const productObj = product.toObject()
-    productObj.seller = sellerDoc
+    const productData = { ...body, seller_id: userId, is_approved: false }
+    const insertRes = await supabase.from('products').insert(productData).select('*').single()
+    if (insertRes.error) {
+      return NextResponse.json({ error: 'Datos de producto inválidos', details: insertRes.error.message }, { status: 400 })
+    }
+    const product = insertRes.data
+    let seller: any = null
+    const sellerRes = await supabase.from('users').select('id,name,email,avatar').eq('id', userId).single()
+    if (!sellerRes.error) seller = sellerRes.data
 
     // notify admins
     const base = process.env.NEXTAUTH_URL || ''
     const secretParam = process.env.MODERATION_SECRET ? `&secret=${encodeURIComponent(process.env.MODERATION_SECRET)}` : ''
-    const approveUrl = `${base}/api/moderation/approve?type=product&id=${product._id}${secretParam}`
+    const approveUrl = `${base}/api/moderation/approve?type=product&id=${product.id}${secretParam}`
     await sendAdminNotification({ subject: `Nuevo producto a revisar: ${product.title}`, text: `Revisar: ${approveUrl}` })
     // optionally notify author
     // If token included email, notify
@@ -47,18 +43,11 @@ export async function POST(request: NextRequest) {
       await sendAuthorNotification({ to: (token as any).email, subject: 'Tu producto fue enviado para revisión', text: `Gracias, tu producto '${product.title}' está pendiente de aprobación.` })
     }
 
-    return NextResponse.json(product, { status: 201 })
+    return NextResponse.json({ ...product, seller }, { status: 201 })
 
   } catch (error: any) {
     console.error('Error creating product:', error)
     
-    if (error.name === 'ValidationError') {
-      return NextResponse.json(
-        { error: 'Datos de producto inválidos', details: error.errors }, 
-        { status: 400 }
-      )
-    }
-
     return NextResponse.json(
       { error: 'Error interno del servidor' }, 
       { status: 500 }

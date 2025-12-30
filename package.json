@@ -9,12 +9,12 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@next-auth/supabase-adapter": "^0.2.1",
-    "@supabase/supabase-js": "^2.48.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/icons-material": "^7.1.1",
     "@mui/material": "^7.1.1",
+    "@next-auth/supabase-adapter": "^0.2.1",
+    "@supabase/supabase-js": "^2.48.1",
     "@types/mongoose": "^5.11.96",
     "dotenv": "^17.2.1",
     "mongoose": "^8.17.0",
@@ -29,6 +29,7 @@
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^7.0.4",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
