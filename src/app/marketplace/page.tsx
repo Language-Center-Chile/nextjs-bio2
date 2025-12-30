@@ -1,7 +1,7 @@
 import HeroMarketplace from '@/components/ui/HeroMarketplace'
 import ProductGrid from '@/components/ui/ProductGrid'
 import SidebarFilters from '@/components/ui/SidebarFilters'
-import dbConnect from '@/lib/mongodb'
+import dbConnect from '@/lib/db'
 import Product from '@/models/Product'
 import User from '@/models/User' // 🔧 Importar User para el populate
 
