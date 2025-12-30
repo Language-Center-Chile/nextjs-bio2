@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import Product from '@/models/Product'
-import User from '@/models/User'
+import { supabase } from '@/lib/supabase'
 
 export async function POST(request: NextRequest) {
   try {
-    await dbConnect()
+    const sb = await dbConnect()
 
-    const users = await User.insertMany([
+    const usersPayload = [
       {
         name: "María González",
         email: "maria@example.com",
@@ -26,21 +25,24 @@ export async function POST(request: NextRequest) {
         role: "consultant",
         bio: "Bióloga especializada en biodiversidad"
       }
-    ])
+    ]
+    const usersRes = await sb.from('users').insert(usersPayload).select('id')
+    if (usersRes.error) {
+      return NextResponse.json({ error: 'Error creando usuarios', details: usersRes.error.message }, { status: 500 })
+    }
+    const users = usersRes.data
 
     // Crear productos de ejemplo
-    const products = await Product.insertMany([
+    const productsPayload = [
       {
         title: "Semillas de Quillay Nativo",
         description: "Semillas certificadas de Quillay (Quillaja saponaria), árbol nativo chileno ideal para reforestación y jardines sustentables.",
         price: 5500,
         category: "semillas",
         images: [],
-        seller: users[0]._id,
-        location: {
-          country: "Chile",
-          city: "Santiago"
-        }
+        seller_id: users[0].id,
+        country: "Chile",
+        city: "Santiago"
       },
       {
         title: "Planta de Lavanda Orgánica",
@@ -48,11 +50,9 @@ export async function POST(request: NextRequest) {
         price: 12000,
         category: "plantas",
         images: [],
-        seller: users[1]._id,
-        location: {
-          country: "Chile",
-          city: "Valparaíso"
-        }
+        seller_id: users[1].id,
+        country: "Chile",
+        city: "Valparaíso"
       },
       {
         title: "Kit de Herramientas de Bambú",
@@ -60,11 +60,9 @@ export async function POST(request: NextRequest) {
         price: 25000,
         category: "herramientas",
         images: [],
-        seller: users[2]._id,
-        location: {
-          country: "Chile",
-          city: "Concepción"
-        }
+        seller_id: users[2].id,
+        country: "Chile",
+        city: "Concepción"
       },
       {
         title: "Asesoría en Huerto Urbano",
@@ -72,11 +70,9 @@ export async function POST(request: NextRequest) {
         price: 45000,
         category: "servicios",
         images: [],
-        seller: users[0]._id,
-        location: {
-          country: "Chile",
-          city: "Santiago"
-        }
+        seller_id: users[0].id,
+        country: "Chile",
+        city: "Santiago"
       },
       {
         title: "Semillas de Tomate Cherry Heirloom",
@@ -84,11 +80,9 @@ export async function POST(request: NextRequest) {
         price: 3500,
         category: "semillas",
         images: [],
-        seller: users[1]._id,
-        location: {
-          country: "Chile",
-          city: "La Serena"
-        }
+        seller_id: users[1].id,
+        country: "Chile",
+        city: "La Serena"
       },
       {
         title: "Planta Suculenta Mix",
@@ -96,18 +90,20 @@ export async function POST(request: NextRequest) {
         price: 18000,
         category: "plantas",
         images: [],
-        seller: users[2]._id,
-        location: {
-          country: "Chile",
-          city: "Antofagasta"
-        }
+        seller_id: users[2].id,
+        country: "Chile",
+        city: "Antofagasta"
       }
-    ])
+    ]
+    const productsRes = await sb.from('products').insert(productsPayload)
+    if (productsRes.error) {
+      return NextResponse.json({ error: 'Error creando productos', details: productsRes.error.message }, { status: 500 })
+    }
 
     return NextResponse.json({
       message: 'Datos de ejemplo creados exitosamente',
       users: users.length,
-      products: products.length
+      products: productsPayload.length
     }, { status: 201 })
 
   } catch (error: any) {

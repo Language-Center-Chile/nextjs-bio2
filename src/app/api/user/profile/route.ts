@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import User from '@/models/User'
 import { getToken } from 'next-auth/jwt'
 
 export async function POST(req: NextRequest) {
@@ -22,21 +21,15 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json()
     const { name, address, postalCode, bio } = body
-
-    await dbConnect()
-
-    const updated = await User.findByIdAndUpdate(userId, {
-      $set: {
-        name,
-        address,
-        postalCode,
-        bio
-      }
-    }, { new: true })
-
-    if (!updated) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
-    }
+    const supabase = await dbConnect()
+    const { data, error } = await supabase
+      .from('users')
+      .update({ name, address, postalCode, bio })
+      .eq('id', userId)
+      .select('id')
+      .single()
+    if (error) return NextResponse.json({ error: 'DB error' }, { status: 500 })
+    if (!data) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
     return NextResponse.json({ success: true })
   } catch (err) {
