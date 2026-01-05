@@ -7,8 +7,10 @@ export default function Footer() {
         <Image
           src="/assets/Isotipo.png"
           alt="Isotipo Biodiversidad.cl"
-          width={64}
-          height={64}
+          width={256}
+          height={256}
+          quality={100}
+          priority
           className="h-8 md:h-12 lg:h-16 w-auto"
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center">
