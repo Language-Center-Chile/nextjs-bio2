@@ -5,9 +5,9 @@ const NewsSection = () => {
     {
       imageSrc: "https://images.unsplash.com/photo-1542601906990-b4d3fb7d5763?w=500&q=80",
       imageAlt: "Reforestación en la Patagonia",
-      title: "Reforestación en la Patagonia",
+      title: "GESTIONANDO EL FUEGO",
       description: "Iniciativa para plantar 1 millón de árboles nativos en la región de Aysén.",
-      href: "/noticias/reforestacion-patagonia",
+      href: "https://biodiversidad.cl/gestionando-el-fuego/",
     },
     {
       imageSrc: "https://images.unsplash.com/photo-1466692476868-aef1dfb1e735?w=500&q=80",
