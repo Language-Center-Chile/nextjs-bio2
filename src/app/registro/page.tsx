@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { getURL } from '@/lib/utils'
 
 const AuthBackground = () => {
   const [currentImage, setCurrentImage] = useState(0)
@@ -129,7 +130,7 @@ export default function RegistroPage() {
       setIsLoading(true)
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: window.location.origin }
+        options: { redirectTo: getURL() }
       })
       if (oauthError) {
         throw oauthError
