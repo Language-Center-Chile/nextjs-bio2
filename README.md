@@ -29,26 +29,6 @@ https://consultores.biodiversidad.cl/
 ### Tooling
 - ESLint (configuración Next.js)
 
-## Variables de Entorno
-
-Este proyecto requiere las siguientes variables en un archivo `.env`:
-
-### Supabase
-- SUPABASE_URL
-- SUPABASE_ANON_KEY
-
-### NextAuth
-- NEXTAUTH_SECRET
-- NEXTAUTH_URL
-
-### Email (SMTP)
-- SMTP_HOST
-- SMTP_PORT
-- SMTP_USER
-- SMTP_PASS
-
-
-
 ## Instalación
 
 Instala el proyecto en tu terminal.
