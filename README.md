@@ -15,17 +15,15 @@ https://consultores.biodiversidad.cl/
 
 ### Core
 - Node.js
-- Next.js 15 (App Router, Turbopack)
+- Next.js 16 (App Router, Turbopack)
 - React 19
 - TypeScript
 
 ### UI
-- Material UI (MUI v7)
-- Emotion (styled components)
+- Tailwind
 
 ### Backend / Servicios
 - Supabase (PostgreSQL, Auth)
-- NextAuth.js (autenticación)
 - Nodemailer (envío de correos)
 
 ### Tooling
