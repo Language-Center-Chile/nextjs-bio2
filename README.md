@@ -1,8 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# Projecto Biodiversidad 🍃
 
-First, run the development server:
+Plataforma web para la gestión y visualización de información relacionada con biodiversidad, desarrollada con Next.js y Supabase.
+
+## Estado del proyecto
+
+🚧 Proyecto en desarrollo activo.  
+Algunas tecnologías pueden cambiar y no todas las funcionalidades están finalizadas.
+
+Puede acceder al proyecto online con:
+https://consultores.biodiversidad.cl/
+
+## Stack Tecnológico
+
+### Core
+- Node.js
+- Next.js 16 (App Router, Turbopack)
+- React 19
+- TypeScript
+
+### UI
+- Tailwind
+
+### Backend / Servicios
+- Supabase (PostgreSQL, Auth)
+- Nodemailer (envío de correos)
+
+### Tooling
+- ESLint (configuración Next.js)
+
+## Instalación
+
+Instala el proyecto en tu terminal.
+
+```bash
+git clone https://github.com/Language-Center-Chile/nextjs-bio2.git
+
+cd nextjs-bio2
+```
+## Desplegar servidor local.
+
+Primero, corre el servidor de desarrollo:
 
 ```bash
 npm run dev
@@ -13,24 +51,26 @@ pnpm dev
 # or
 bun dev
 ```
+Abre [http://localhost:3000](http://localhost:3000) con tu navegador para ver el resultado.
+## Base de datos
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Este proyecto utiliza **Supabase** como plataforma de base de datos y backend (PostgreSQL gestionado).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+La base de datos se usa para:
+- Almacenamiento persistente de datos
+- Autenticación y manejo de usuarios (si aplica)
+- Funcionalidades backend relacionadas
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+No es necesario configurar manualmente la base de datos para desarrollo básico.
+Solo debes definir las variables de entorno correspondientes en el archivo `.env`.
 
-## Learn More
+Más información sobre Supabase:
+👉 https://supabase.com/docs
 
-To learn more about Next.js, take a look at the following resources:
+## Despliegue en Vercel
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+La forma más sencilla de desplegar la aplicación Next.js que encontramos es utilizar la [plataforma Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme), creada por los desarrolladores de Next.js.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Puedes consultar la [documentación de despliegue de Next.js](https://nextjs.org/docs/app/building-your-application/deploying) para obtener más detalles.
 
-## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
