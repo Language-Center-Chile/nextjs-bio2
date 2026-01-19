@@ -67,7 +67,7 @@ Solo debes definir las variables de entorno correspondientes en el archivo `.env
 Más información sobre Supabase:
 👉 https://supabase.com/docs
 
-## Despliegue en Vercel
+## Despliegue en Coolify (VPS)
 
 La forma más sencilla de desplegar la aplicación Next.js que encontramos es utilizar la [plataforma Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme), creada por los desarrolladores de Next.js.
 
