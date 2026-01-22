@@ -69,8 +69,4 @@ Más información sobre Supabase:
 
 ## Despliegue en Coolify (VPS)
 
-La forma más sencilla de desplegar la aplicación Next.js que encontramos es utilizar la [plataforma Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme), creada por los desarrolladores de Next.js.
-
-Puedes consultar la [documentación de despliegue de Next.js](https://nextjs.org/docs/app/building-your-application/deploying) para obtener más detalles.
-
-
+Desplegamos el proyecto para que corra en un VPS, usamos Coolify por la flexibilidad que nos dió, y sus planes accesibles, permitiendo en un futuro no muy lejano agregar el Back-End en el VPS.
