@@ -39,7 +39,8 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
     name: '',
     address: '',
     postalCode: '',
-    bio: ''
+    bio: '',
+    role: 'user'
   })
 
   // Avatar state
@@ -51,13 +52,26 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
       const { data } = await supabase.auth.getUser()
       const u = data.user
       setUser(u)
+
+      // Get additional user data (role) from public table
+      let currentRole = 'user'
+      if (u) {
+        const { data: dbUser } = await supabase
+          .from('usuarios')
+          .select('rol')
+          .eq('id', u.id)
+          .single()
+        if (dbUser && dbUser.rol) currentRole = dbUser.rol
+      }
+
       const metadata = u?.user_metadata as UserMetadata | undefined
       const displayName = metadata?.name || metadata?.full_name || ''
       setForm({
         name: displayName,
         address: '',
         postalCode: '',
-        bio: displayName ? `Hola, soy ${displayName}` : ''
+        bio: displayName ? `Hola, soy ${displayName}` : '',
+        role: currentRole
       })
       setPreview(metadata?.avatar_url ?? metadata?.picture ?? null)
     })()
@@ -66,7 +80,7 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
   const [isSaving, setIsSaving] = useState(false)
   const [message, setMessage] = useState('')
 
-  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
+  function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
     const { name, value } = e.target
     setForm(prev => ({ ...prev, [name]: value }))
   }
@@ -155,7 +169,8 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
       name: displayName,
       address: metadata?.address || '',
       postalCode: metadata?.postalCode || '',
-      bio: metadata?.bio || (displayName ? `Hola, soy ${displayName}` : '')
+      bio: metadata?.bio || (displayName ? `Hola, soy ${displayName}` : ''),
+      role: form.role
     })
     setPreview(metadata?.avatar_url ?? metadata?.picture ?? null)
     setMessage('')
@@ -238,6 +253,17 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
       <div>
         <label className="text-sm text-gray-300 block mb-1">Nombre</label>
         <input name="name" value={form.name} onChange={handleChange} className="w-full px-4 py-2 bg-neutral-800 rounded" />
+      </div>
+
+      <div>
+        <label className="text-sm text-gray-300 block mb-1">Tipo de Perfil</label>
+        <select name="role" value={form.role} onChange={handleChange} className="w-full px-4 py-2 bg-neutral-800 rounded text-white">
+          <option value="user">Usuario / Reclutador</option>
+          <option value="consultant">Consultor</option>
+        </select>
+        <p className="text-xs text-gray-400 mt-1">
+          Si eliges "Consultor", aparecerás en la red de profesionales y podrás ofrecer servicios.
+        </p>
       </div>
 
       <div>

@@ -16,16 +16,83 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { name, address, postalCode, bio } = body
+    const { name, address, postalCode, bio, role, especialidad, experiencia, cv_url, certificaciones } = body
     const supabase = await dbConnect()
+
+    // Preparar objeto de actualización
+    const updates: any = { name, address, postalCode, bio }
+    // Solo actualizamos campos si vienen definidos
+    if (name !== undefined) updates.name = name
+    if (address !== undefined) updates.address = address
+    if (postalCode !== undefined) updates.postalCode = postalCode
+    if (bio !== undefined) updates.bio = bio
+    // if (role) updates.rol = role // Columna rol no existe en usuarios
+
     const { data, error } = await supabase
-      .from('users')
-      .update({ name, address, postalCode, bio })
+      .from('usuarios')
+      .update(updates)
       .eq('id', userId)
-      .select('id')
+      .select('id, email, name')
       .single()
-    if (error) return NextResponse.json({ error: 'DB error' }, { status: 500 })
+    
+    if (error) {
+      console.error('DB Error updating usuarios table:', error)
+      return NextResponse.json({ error: 'DB error', details: error.message }, { status: 500 })
+    }
     if (!data) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+
+    // Si el rol es consultor, asegurar que exista en la tabla consultores
+    if (role === 'consultant') {
+      const { data: existing, error: searchError } = await supabase
+        .from('consultores')
+        .select('id')
+        .eq('usuario_id', userId)
+        .single()
+      
+      if (searchError && searchError.code !== 'PGRST116') { // PGRST116 es "no rows returned"
+         console.error('Error searching consultant:', searchError)
+      }
+
+      // Datos a guardar en consultores
+      const consultantData = {
+        usuario_id: userId,
+        especialidad: especialidad || 'General',
+        experiencia: experiencia || bio || 'Perfil de consultor',
+        cv_url: cv_url || '',
+        certificaciones: certificaciones || '',
+        verificado: false
+      }
+
+      if (!existing) {
+        // Crear nuevo
+        const { error: insertError } = await supabase.from('consultores').insert(consultantData)
+
+        if (insertError) {
+          console.error('Error creating consultant profile:', insertError)
+          return NextResponse.json({ error: 'Error creating consultant', details: insertError.message }, { status: 500 })
+        }
+      } else {
+        // Actualizar existente
+        // Solo actualizamos si vienen datos específicos, para no sobrescribir con valores por defecto
+        const updateData: any = {}
+        if (especialidad) updateData.especialidad = especialidad
+        if (experiencia) updateData.experiencia = experiencia
+        if (cv_url !== undefined) updateData.cv_url = cv_url
+        if (certificaciones !== undefined) updateData.certificaciones = certificaciones
+
+        if (Object.keys(updateData).length > 0) {
+          const { error: updateError } = await supabase
+            .from('consultores')
+            .update(updateData)
+            .eq('id', existing.id)
+          
+          if (updateError) {
+             console.error('Error updating consultant profile:', updateError)
+             return NextResponse.json({ error: 'Error updating consultant', details: updateError.message }, { status: 500 })
+          }
+        }
+      }
+    }
 
     return NextResponse.json({ success: true })
   } catch (err) {

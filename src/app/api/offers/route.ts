@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
       const userToken = token as unknown as UserToken
       if (userToken && userToken.email) authorEmail = userToken.email
       if (!authorEmail) {
-        const authorUser = await supabase.from('users').select('email').eq('id', userId).single()
+        const authorUser = await supabase.from('usuarios').select('email').eq('id', userId).single()
         const userData = authorUser.data as AuthorUser
         if (!authorUser.error && userData && userData.email) authorEmail = String(userData.email)
       }

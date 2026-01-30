@@ -60,7 +60,7 @@ async function getProducts(searchParams: Awaited<MarketplacePageProps['searchPar
     const sellerIds = Array.from(new Set(productsData.map((p) => (p as RawProduct).seller_id).filter(Boolean)))
     const sellersMap: Record<string, RawUser> = {}
     if (sellerIds.length > 0) {
-      const sellersRes = await supabase.from('users').select('id,name,avatar').in('id', sellerIds)
+      const sellersRes = await supabase.from('usuarios').select('id,name,avatar').in('id', sellerIds)
       const sellers = (sellersRes.data || []) as RawUser[]
       for (const s of sellers) sellersMap[String(s.id)] = s
     }
