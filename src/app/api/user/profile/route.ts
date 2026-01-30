@@ -20,7 +20,13 @@ export async function POST(req: NextRequest) {
     const supabase = await dbConnect()
 
     // Preparar objeto de actualización
-    const updates: any = { name, address, postalCode, bio }
+    // Usamos upsert para crear el usuario si no existe (sincronización auth -> public)
+    const updates: any = { 
+      id: userId,
+      email: token?.email,
+      updated_at: new Date().toISOString()
+    }
+
     // Solo actualizamos campos si vienen definidos
     if (name !== undefined) updates.name = name
     if (address !== undefined) updates.address = address
@@ -30,8 +36,7 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await supabase
       .from('usuarios')
-      .update(updates)
-      .eq('id', userId)
+      .upsert(updates)
       .select('id, email, name')
       .single()
     
