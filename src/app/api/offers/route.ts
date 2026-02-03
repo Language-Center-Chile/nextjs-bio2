@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import { getAuthUser } from '@/lib/auth-helper'
+import { getAuthUser, getBearerToken } from '@/lib/auth-helper'
 import { sendAdminNotification, sendAuthorNotification, isSmtpConfigured } from '@/lib/email'
 
 interface UserToken {
@@ -14,14 +14,15 @@ interface AuthorUser {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await dbConnect()
     const token = await getAuthUser(request)
+    const accessToken = getBearerToken(request)
     let userId: string | undefined = undefined
     if (token && token.sub) {
       userId = token.sub
     }
 
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const supabase = await dbConnect(accessToken)
 
     // Feature flag: if OFFERS_ENFORCE_SMTP=true then require SMTP to be configured before allowing new offers
     if (process.env.OFFERS_ENFORCE_SMTP === 'true' && !isSmtpConfigured()) {

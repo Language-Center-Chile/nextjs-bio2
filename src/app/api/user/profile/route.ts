@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import dbConnect from '@/lib/db'
-import { getAuthUser } from '@/lib/auth-helper'
+import { getAuthUser, getBearerToken } from '@/lib/auth-helper'
 
 export async function POST(req: NextRequest) {
   try {
     const token = await getAuthUser(req)
+    const accessToken = getBearerToken(req)
 
     let userId: string | undefined = undefined
     if (token && token.sub) {
@@ -17,7 +18,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json()
     const { name, address, postalCode, bio, role, especialidad, experiencia, cv_url, certificaciones } = body
-    const supabase = await dbConnect()
+    const supabase = await dbConnect(accessToken)
 
     // Preparar objeto de actualización
     // Usamos upsert para crear el usuario si no existe (sincronización auth -> public)
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
     if (address !== undefined) updates.address = address
     if (postalCode !== undefined) updates.postalCode = postalCode
     if (bio !== undefined) updates.bio = bio
-    // if (role) updates.rol = role // Columna rol no existe en usuarios
+    if (role !== undefined) updates.rol = role
 
     const { data, error } = await supabase
       .from('usuarios')
