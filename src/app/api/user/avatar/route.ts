@@ -1,5 +1,5 @@
 import { NextResponse, NextRequest } from 'next/server'
-import { getAuthUser } from '@/lib/auth-helper'
+import { getAuthUser, getBearerToken } from '@/lib/auth-helper'
 import dbConnect from '../../../../lib/db'
 
 export async function POST(req: NextRequest) {
@@ -9,11 +9,10 @@ export async function POST(req: NextRequest) {
 
   const token = await getAuthUser(req)
   if (!token || !token.sub) return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
-
-  await dbConnect()
+  const accessToken = getBearerToken(req)
 
   try {
-    const supabase = await dbConnect()
+    const supabase = await dbConnect(accessToken)
     const { data, error } = await supabase
       .from('users')
       .update({ avatar: image })

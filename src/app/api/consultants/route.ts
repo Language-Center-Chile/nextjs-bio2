@@ -24,15 +24,15 @@ export async function POST(request: NextRequest) {
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await request.json()
-    const existingRes = await supabase.from('consultants').select('id').eq('user', userId).single()
+    const existingRes = await supabase.from('consultores').select('id').eq('user', userId).single()
     const existing = !existingRes.error ? existingRes.data : null
     const base = process.env.NEXTAUTH_URL || ''
     const secretParam = process.env.MODERATION_SECRET ? `&secret=${encodeURIComponent(process.env.MODERATION_SECRET)}` : ''
 
     if (existing) {
-      const updateRes = await supabase.from('consultants').update({ ...body, isApproved: false }).eq('id', existing.id).select('*').single()
+      const updateRes = await supabase.from('consultores').update({ ...body, isApproved: false }).eq('id', existing.id).select('*').single()
       if (updateRes.error) return NextResponse.json({ error: 'Datos inválidos', details: updateRes.error.message }, { status: 400 })
-      await supabase.from('users').update({ role: 'consultant' }).eq('id', userId)
+      await supabase.from('usuarios').update({ rol: 'consultant' }).eq('id', userId)
 
       const approveUrl = `${base}/api/moderation/approve?type=consultant&id=${existing.id}${secretParam}`
       await sendAdminNotification({ subject: `Perfil de consultor a revisar: ${userId}`, text: `Revisar: ${approveUrl}` })
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         const userToken = token as unknown as UserToken
         if (userToken && userToken.email) authorEmail = userToken.email
         if (!authorEmail) {
-          const authorUser = await supabase.from('users').select('email').eq('id', userId).single()
+          const authorUser = await supabase.from('usuarios').select('email').eq('id', userId).single()
           const userData = authorUser.data as AuthorUser
           if (!authorUser.error && userData && userData.email) authorEmail = String(userData.email)
         }
@@ -53,10 +53,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true, consultant: updateRes.data })
     }
 
-    const insertRes = await supabase.from('consultants').insert({ ...body, user: userId, isApproved: false }).select('*').single()
+    const insertRes = await supabase.from('consultores').insert({ ...body, user: userId, isApproved: false }).select('*').single()
     if (insertRes.error) return NextResponse.json({ error: 'Datos inválidos', details: insertRes.error.message }, { status: 400 })
     const consultant = insertRes.data
-    await supabase.from('users').update({ role: 'consultant' }).eq('id', userId)
+    await supabase.from('usuarios').update({ rol: 'consultant' }).eq('id', userId)
 
     const approveUrl = `${base}/api/moderation/approve?type=consultant&id=${consultant.id}${secretParam}`
     await sendAdminNotification({ subject: `Nuevo perfil de consultor a revisar`, text: `Revisar: ${approveUrl}` })
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       const userToken = token as unknown as UserToken
       if (userToken && userToken.email) authorEmail = userToken.email
       if (!authorEmail) {
-        const authorUser = await supabase.from('users').select('email').eq('id', userId).single()
+        const authorUser = await supabase.from('usuarios').select('email').eq('id', userId).single()
         const userData = authorUser.data as AuthorUser
         if (!authorUser.error && userData && userData.email) authorEmail = String(userData.email)
       }

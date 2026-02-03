@@ -70,8 +70,11 @@ export default function ProfileLayout({ children }: { children: ReactNode }) {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <aside className="space-y-2">
           <nav className="flex flex-col gap-2 text-sm">
-            <a href="/perfil" className="px-3 py-2 rounded bg-neutral-800 hover:bg-neutral-700 font-medium text-green-400">
+            <a href="/perfil" className="px-3 py-2 rounded hover:bg-neutral-800 text-gray-300">
               Información General
+            </a>
+            <a href="/perfil/profesional" className="px-3 py-2 rounded hover:bg-neutral-800 text-gray-300 text-amber-400 font-medium">
+              Datos Profesionales
             </a>
             <a href="/perfil/seguridad" className="px-3 py-2 rounded hover:bg-neutral-800 text-gray-300">
               Seguridad

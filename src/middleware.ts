@@ -18,10 +18,13 @@ export function middleware(request: NextRequest) {
   // Referrer Policy
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   
-  // Content Security Policy básico
+  // Content Security Policy básico (Permitir WS en localhost para desarrollo)
+  const isDev = process.env.NODE_ENV === 'development'
+  const connectSrc = "connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co" + (isDev ? " ws://127.0.0.1:* ws://localhost:*" : "") + ";"
+  
   response.headers.set(
     'Content-Security-Policy',
-    "default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co;"
+    `default-src 'self'; img-src 'self' data: https:; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; ${connectSrc}`
   )
 
   // Rate limiting básico para APIs (opcional - requerirá implementación adicional)
