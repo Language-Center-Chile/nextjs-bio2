@@ -1,8 +1,9 @@
 'use client';
 
 import ConsultantCard from './ui/ConsultantCard';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ConsultantSidePanel from './ConsultantSidePanel';
+import { supabase } from '@/lib/supabase';
 
 interface ConsultantItem {
   id: string;
@@ -15,54 +16,82 @@ interface ConsultantItem {
 }
 
 export default function ConsultantGrid({ items }: { items?: ConsultantItem[] }) {
-  const sample = [
-    {
-      id: '1',
-      image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=500&q=80',
-      name: 'María Fernanda Rojas',
-      specialty: 'Especialista en Impacto Ambiental',
-      email: 'maria@example.com',
-      bio: 'Profesional con 10 años de experiencia en proyectos de conservación y reforestación.',
-    },
-    {
-      id: '2',
-      image: 'https://images.unsplash.com/photo-1595152772835-219674b2a8a6?w=400&q=80',
-      name: 'Ignacio Pérez',
-      specialty: 'Consultor en Legislación Ambiental',
-      email: 'ignacio@example.com',
-      bio: 'Abogado ambiental con foco en normativa y cumplimiento regulatorio.',
-    },
-    {
-      id: '3',
-      image: 'https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=400&q=80',
-      name: 'Sofía Navarro',
-      specialty: 'Educadora Ambiental y Biodiversidad',
-      email: 'sofia@example.com',
-      bio: 'Especializada en educación comunitaria y diseño de programas pedagógicos.',
-    },
-  ];
+  const [consultants, setConsultants] = useState<ConsultantItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const consultants = items && items.length ? items : sample;
+  useEffect(() => {
+    async function fetchConsultants() {
+      try {
+        const { data, error } = await supabase
+          .from('consultores')
+          .select('*');
+
+        if (error) {
+          console.error('Error fetching consultants:', error);
+          // Fallback to sample data if there's an error
+          setConsultants(items || []);
+        } else {
+          // Transform the data to match the ConsultantItem interface
+          const transformedConsultants = data.map(consultant => ({
+            id: consultant.id.toString(),
+            image: consultant.image && consultant.image.trim() !== '' ? consultant.image : undefined,
+            name: consultant.name || consultant.nombre || '',
+            specialty: consultant.specialty || consultant.especialidad || '',
+            email: consultant.email || '',
+            bio: consultant.bio || consultant.descripcion || '',
+          }));
+          setConsultants(transformedConsultants);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        setConsultants(items || []);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // Use provided items if available, otherwise fetch from Supabase
+    if (items && items.length) {
+      setConsultants(items);
+      setLoading(false);
+    } else {
+      fetchConsultants();
+    }
+  }, [items]);
 
   const [selected, setSelected] = useState<string | null>(null);
   const selectedConsultant = consultants.find(c => c.id === selected) || null;
 
+  if (loading) {
+    return (
+      <section className="py-12 px-4 max-w-6xl mx-auto">
+        <div className="text-center">Cargando consultores...</div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-12 px-4 max-w-6xl mx-auto">
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {consultants.map(consultant => (
-          <div key={consultant.id} onClick={() => setSelected(consultant.id)}>
-            <ConsultantCard
-              id={consultant.id}
-              image={consultant.image || ''}
-              name={consultant.name}
-              specialty={consultant.specialty || ''}
-              email={consultant.email}
-              bio={consultant.bio}
-            />
-          </div>
-        ))}
-      </div>
+      {consultants.length === 0 ? (
+        <div className="text-center text-gray-600">
+          No hay consultores disponibles en este momento.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {consultants.map(consultant => (
+            <div key={consultant.id} onClick={() => setSelected(consultant.id)}>
+              <ConsultantCard
+                id={consultant.id}
+                image={consultant.image || ''}
+                name={consultant.name}
+                specialty={consultant.specialty || ''}
+                email={consultant.email}
+                bio={consultant.bio}
+              />
+            </div>
+          ))}
+        </div>
+      )}
 
       <ConsultantSidePanel
         consultant={

@@ -12,6 +12,33 @@ interface AuthorUser {
   email?: string
 }
 
+export async function GET(request: NextRequest) {
+  try {
+    const supabase = await dbConnect()
+    const { searchParams } = new URL(request.url)
+    const includePending = searchParams.get('includePending') === 'true'
+
+    const query = supabase
+      .from('consultores')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    const { data, error } = includePending 
+      ? await query
+      : await query.eq('isApproved', true)
+
+    if (error) {
+      console.error('Error fetching consultants:', error)
+      return NextResponse.json({ error: 'Error fetching consultants' }, { status: 500 })
+    }
+
+    return NextResponse.json({ consultants: data })
+  } catch (err) {
+    console.error('[api/consultants GET] error', err)
+    return NextResponse.json({ error: 'Server error' }, { status: 500 })
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const supabase = await dbConnect()
