@@ -28,12 +28,15 @@ export async function POST(req: NextRequest) {
       updated_at: new Date().toISOString()
     }
 
+    // Función para limpiar valores vacíos
+    const clean = (v: unknown) => (typeof v === 'string' && v.trim() === '' ? null : v);
+
     // Solo actualizamos campos si vienen definidos
-    if (name !== undefined) updates.name = name
-    if (address !== undefined) updates.address = address
-    if (postalCode !== undefined) updates.postalCode = postalCode
-    if (bio !== undefined) updates.bio = bio
-    if (role !== undefined) updates.rol = role
+    if (name !== undefined) updates.name = clean(name)
+    if (address !== undefined) updates.address = clean(address)
+    if (postalCode !== undefined) updates.postalCode = clean(postalCode)
+    if (bio !== undefined) updates.bio = clean(bio)
+    if (role !== undefined) updates.rol = clean(role)
 
     const { data, error } = await supabase
       .from('usuarios')
