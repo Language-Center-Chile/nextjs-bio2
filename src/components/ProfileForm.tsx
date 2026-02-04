@@ -87,13 +87,26 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    
+    // Validar que el nombre no esté vacío
+    if (!form?.name?.trim()) {
+      setMessage('El nombre es obligatorio');
+      return;
+    }
+    
     setIsSaving(true)
     setMessage('')
 
     try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const token = session?.access_token
+      
       const res = await fetch('/api/user/profile', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
         credentials: 'include',
         body: JSON.stringify(form)
       })
@@ -103,7 +116,8 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
         setEditing(false)
         router.refresh()
       } else {
-        setMessage('Error al guardar')
+        const errorData = await res.json().catch(() => ({ error: 'Error al guardar' }))
+        setMessage(errorData.error || 'Error al guardar')
       }
     } catch (err) {
       setMessage('Error de red')
@@ -111,6 +125,7 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
       setIsSaving(false)
     }
   }
+ 
 
   // Convierte archivo a base64
   function fileToBase64(file: File): Promise<string> {
@@ -287,4 +302,5 @@ export default function ProfileForm({ editing: editingProp, onEditingChange }: P
       </div>
     </form>
   )
-}
+}// ProfileForm.tsx → handleSubmit
+
