@@ -24,6 +24,8 @@ export default function UserMenu() {
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
+  const [customAvatar, setCustomAvatar] = useState<string | null>(null);
+
   useEffect(() => {
     let active = true;
     (async () => {
@@ -31,9 +33,23 @@ export default function UserMenu() {
       if (!active) return;
       setSession(data.session);
       setLoading(false);
+
+      // Si hay sesión, cargar imagen_perfil desde usuarios
+      if (data.session?.user?.id) {
+        const { data: userData } = await supabase
+          .from('usuarios')
+          .select('imagen_perfil')
+          .eq('id', data.session.user.id)
+          .single();
+        if (userData?.imagen_perfil && active) {
+          setCustomAvatar(userData.imagen_perfil);
+        }
+      }
     })();
     const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
       setSession(newSession);
+      // Limpiar avatar al cerrar sesión
+      if (!newSession) setCustomAvatar(null);
     });
     return () => { active = false; sub.subscription.unsubscribe(); };
   }, []);
@@ -76,6 +92,7 @@ export default function UserMenu() {
     activeSession.user?.email?.split('@')[0] ||
     'Usuario';
   const image =
+    customAvatar || // ← prioridad: imagen subida por el usuario
     meta.avatar_url ||
     meta.picture ||
     identity.avatar_url ||

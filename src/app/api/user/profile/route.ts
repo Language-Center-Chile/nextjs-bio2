@@ -31,16 +31,32 @@ export async function POST(req: NextRequest) {
     // Función para limpiar valores vacíos
     const clean = (v: unknown) => (typeof v === 'string' && v.trim() === '' ? null : v);
 
+    // Mapeo seguro de roles a valores permitidos por la constraint
+    const ROLE_MAP: Record<string, string> = {
+      'Usuario': 'usuario_regular',
+      'Consultor': 'consultor',
+      'user': 'usuario_regular',
+      'consultant': 'consultor',
+      'usuario_regular': 'usuario_regular',
+      'reclutador': 'reclutador',
+      'consultor': 'consultor',
+      'admin': 'admin'
+    }
+
+    let safeRole: string | undefined = undefined // ← declarar fuera
+
     // Solo actualizamos campos si vienen definidos
     if (name !== undefined) updates.name = clean(name)
     if (address !== undefined) updates.address = clean(address)
-    if (postalCode !== undefined) updates.postalCode = clean(postalCode)
-    if (bio !== undefined) updates.bio = clean(bio)
-    if (role !== undefined) updates.rol = clean(role)
+    // Removed postalCode and bio from usuarios table as they are not in the schema
+    if (role !== undefined) {
+      safeRole = ROLE_MAP[role] || 'usuario_regular' // ← asignar aquí
+      updates.tipo_usuario = clean(safeRole)
+    }
 
     const { data, error } = await supabase
       .from('usuarios')
-      .upsert(updates)
+      .upsert(updates, { onConflict: 'email' }) // ← clave: conflicto sobre email
       .select('id, email, name')
       .single()
     
@@ -51,7 +67,7 @@ export async function POST(req: NextRequest) {
     if (!data) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
     // Si el rol es consultor, asegurar que exista en la tabla consultores
-    if (role === 'consultant') {
+    if (safeRole === 'consultor') {
       const { data: existing, error: searchError } = await supabase
         .from('consultores')
         .select('id')
