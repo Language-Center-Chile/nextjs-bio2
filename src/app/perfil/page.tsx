@@ -1,10 +1,7 @@
-import ProfileLayout from '@/components/ProfileLayout'
-import ProfileForm from '@/components/ProfileForm'
+import EditProfileView from '@/components/EditProfileView'
 
 export default function PerfilPage() {
   return (
-    <ProfileLayout>
-      <ProfileForm />
-    </ProfileLayout>
+    <EditProfileView />
   )
 }
