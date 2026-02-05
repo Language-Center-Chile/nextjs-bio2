@@ -26,7 +26,7 @@ Repositorio base: `nextjs-bio2`
 - Storage (opcional): imágenes de especies y recursos educativos
 
 ### 2.3. Deployment
-- **Vercel** para frontend
+- **VPS-Coolify** para frontend
 - **Supabase** como backend (DB, Auth, Storage)
 
 
