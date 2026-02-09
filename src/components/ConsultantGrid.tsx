@@ -35,7 +35,7 @@ export default function ConsultantGrid({ items }: { items?: ConsultantItem[] }) 
               name
             )
           `)
-           .eq('verificado', true);
+          //  .eq('verificado', true);
 
         if (error) {
           console.error('Error fetching consultants:', error);
