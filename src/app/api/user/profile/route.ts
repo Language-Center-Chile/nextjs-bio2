@@ -78,6 +78,13 @@ export async function POST(req: NextRequest) {
          console.error('Error searching consultant:', searchError)
       }
 
+      // Obtener imagen_perfil del usuario para copiarla a consultores
+      const { data: userData } = await supabase
+        .from('usuarios')
+        .select('imagen_perfil')
+        .eq('id', userId)
+        .single();
+
       // Datos a guardar en consultores
       const consultantData = {
         usuario_id: userId,
@@ -85,6 +92,7 @@ export async function POST(req: NextRequest) {
         experiencia: experiencia || bio || 'Perfil de consultor',
         cv_url: cv_url || '',
         certificaciones: certificaciones || '',
+        imagen: userData?.imagen_perfil || '', // ← copiar imagen
         verificado: false
       }
 
