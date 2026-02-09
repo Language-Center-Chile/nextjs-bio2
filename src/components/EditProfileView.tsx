@@ -15,6 +15,8 @@ type FormState = {
   experiencia: string
   cv_url: string
   certificaciones: string
+  password: string
+  confirmpassword: string
 }
 
 type UserMetadata = {
@@ -83,7 +85,9 @@ export default function EditProfileView() {
     especialidad: '',
     experiencia: '',
     cv_url: '',
-    certificaciones: ''
+    certificaciones: '',
+    password: '',
+    confirmpassword: ''
   })
 
   const [initialForm, setInitialForm] = useState<FormState | null>(null)
@@ -96,77 +100,79 @@ export default function EditProfileView() {
 
   useEffect(() => {
     let active = true
-    ;(async () => {
-      const { data: sessionData } = await supabase.auth.getSession()
-      const session = sessionData.session
-      if (!active) return
-      if (!session) {
-        router.push('/login')
-        return
-      }
+      ; (async () => {
+        const { data: sessionData } = await supabase.auth.getSession()
+        const session = sessionData.session
+        if (!active) return
+        if (!session) {
+          router.push('/login')
+          return
+        }
 
-      setSessionToken(session.access_token)
-      setUserEmail(session.user.email ?? '')
+        setSessionToken(session.access_token)
+        setUserEmail(session.user.email ?? '')
 
-      const metadata = (session.user.user_metadata || {}) as UserMetadata
-      const initialAvatar = null // Will be set after dbUser fetch
-      setPreview(initialAvatar)
-      setInitialPreview(initialAvatar)
+        const metadata = (session.user.user_metadata || {}) as UserMetadata
+        const initialAvatar = null // Will be set after dbUser fetch
+        setPreview(initialAvatar)
+        setInitialPreview(initialAvatar)
 
-      const displayName = metadata.name || metadata.full_name || ''
+        const displayName = metadata.name || metadata.full_name || ''
 
-      const base: FormState = {
-        name: displayName,
-        address: '',
-        postalCode: '',
-        bio: '',
-        role: 'Usuario',
-        especialidad: '',
-        experiencia: '',
-        cv_url: '',
-        certificaciones: ''
-      }
+        const base: FormState = {
+          name: displayName,
+          address: '',
+          postalCode: '',
+          bio: '',
+          role: 'Usuario',
+          especialidad: '',
+          experiencia: '',
+          cv_url: '',
+          certificaciones: '',
+          password: '',
+          confirmpassword: ''
+        }
 
-      const { data: dbUser } = await supabase
-        .from('usuarios')
-        .select('name,address,tipo_usuario,imagen_perfil')
-        .eq('id', session.user.id)
-        .single()
-
-      if (!active) return
-
-      const dbAvatar = dbUser?.imagen_perfil ?? metadata.avatar_url ?? metadata.picture ?? null
-      setPreview(dbAvatar)
-      setInitialPreview(dbAvatar)
-
-      const role = dbUser?.tipo_usuario ?? base.role
-      const merged: FormState = {
-        ...base,
-        name: dbUser?.name ?? base.name,
-        address: dbUser?.address ?? base.address,
-        role
-      }
-
-      if (role === 'Consultor') {
-        const { data: consultant } = await supabase
-          .from('consultores')
-          .select('especialidad,experiencia,cv_url,certificaciones')
-          .eq('usuario_id', session.user.id)
+        const { data: dbUser } = await supabase
+          .from('usuarios')
+          .select('name,address,tipo_usuario,imagen_perfil')
+          .eq('id', session.user.id)
           .single()
 
         if (!active) return
 
-        merged.especialidad = consultant?.especialidad ?? ''
-        merged.experiencia = consultant?.experiencia ?? ''
-        merged.bio = consultant?.experiencia ?? '' // Use experiencia as bio for consultants
-        merged.cv_url = consultant?.cv_url ?? ''
-        merged.certificaciones = consultant?.certificaciones ?? ''
-      }
+        const dbAvatar = dbUser?.imagen_perfil ?? metadata.avatar_url ?? metadata.picture ?? null
+        setPreview(dbAvatar)
+        setInitialPreview(dbAvatar)
 
-      setForm(merged)
-      setInitialForm(merged)
-      setLoading(false)
-    })()
+        const role = dbUser?.tipo_usuario ?? base.role
+        const merged: FormState = {
+          ...base,
+          name: dbUser?.name ?? base.name,
+          address: dbUser?.address ?? base.address,
+          role
+        }
+
+        if (role === 'Consultor') {
+          const { data: consultant } = await supabase
+            .from('consultores')
+            .select('especialidad,experiencia,cv_url,certificaciones')
+            .eq('usuario_id', session.user.id)
+            .single()
+
+          if (!active) return
+
+          merged.especialidad = consultant?.especialidad ?? ''
+          merged.experiencia = consultant?.experiencia ?? ''
+          merged.bio = consultant?.experiencia ?? '' // Use experiencia as bio for consultants
+          merged.cv_url = consultant?.cv_url ?? ''
+          merged.certificaciones = consultant?.certificaciones ?? ''
+        }
+
+        setForm(merged)
+        setInitialForm(merged)
+        setLoading(false)
+      })()
 
     return () => {
       active = false
@@ -408,6 +414,31 @@ export default function EditProfileView() {
                 <div>
                   <label className={labelClassName}>Correo electrónico</label>
                   <input className={inputClassName} value={userEmail} readOnly />
+                </div>
+
+                <div>
+                  <label className={labelClassName}>Cambiar contraseña</label>
+                  <input
+                    className={inputClassName}
+                    type='password'
+                    name="Password"
+                    value={form.password}
+                    onChange={e => updateField('password', e.target.value)}
+                    placeholder="Nueva contraseña"
+                    autoComplete="new-password"
+                  />
+                </div>
+                <div>
+                  <label className={labelClassName}>Confirmar contraseña</label>
+                  <input
+                    type="confirmpassword"
+                    className={inputClassName}
+                    name="confirmPassword"
+                    value={form.confirmpassword}
+                    onChange={e => updateField('confirmpassword', e.target.value)}
+                    placeholder="Repite la nueva contraseña"
+                    autoComplete="confirm-password"
+                  />
                 </div>
 
                 <div className="md:col-span-2">
