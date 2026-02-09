@@ -24,7 +24,18 @@ export default function ConsultantGrid({ items }: { items?: ConsultantItem[] }) 
       try {
         const { data, error } = await supabase
           .from('consultores')
-          .select('*');
+          .select(`
+            id,
+            usuario_id,
+            especialidad,
+            experiencia,
+            verificado,
+            usuarios!inner (
+              imagen_perfil,
+              name
+            )
+          `)
+          //  .eq('verificado', true);
 
         if (error) {
           console.error('Error fetching consultants:', error);
@@ -32,14 +43,21 @@ export default function ConsultantGrid({ items }: { items?: ConsultantItem[] }) 
           setConsultants(items || []);
         } else {
           // Transform the data to match the ConsultantItem interface
-          const transformedConsultants = data.map(consultant => ({
-            id: consultant.id.toString(),
-            image: consultant.image && consultant.image.trim() !== '' ? consultant.image : undefined,
-            name: consultant.name || consultant.nombre || '',
-            specialty: consultant.specialty || consultant.especialidad || '',
-            email: consultant.email || '',
-            bio: consultant.bio || consultant.descripcion || '',
-          }));
+          const transformedConsultants = data.map(consultant => {
+            // Manejo seguro de la relación anidada (puede venir como objeto o array)
+            const usuario = Array.isArray(consultant.usuarios)
+              ? consultant.usuarios[0]
+              : consultant.usuarios;
+
+            return {
+              id: consultant.id.toString(),
+              image: usuario?.imagen_perfil || undefined,
+              name: usuario?.name || '',
+              specialty: consultant.especialidad || '',
+              email: '', // no tenemos email en esta consulta
+              bio: consultant.experiencia || '',
+            };
+          });
           setConsultants(transformedConsultants);
         }
       } catch (error) {
