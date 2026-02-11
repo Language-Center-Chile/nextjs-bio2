@@ -2,6 +2,9 @@
 
 import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
+import { Session } from '@supabase/supabase-js'
 
 interface Props {
   consultant: null | { id: string; image: string; name: string; specialty: string; email?: string; bio?: string }
@@ -10,9 +13,21 @@ interface Props {
 
 export default function ConsultantSidePanel({ consultant, onClose }: Props) {
   const [visible, setVisible] = useState(false)
+  const [session, setSession] = useState<Session | null>(null)
   const panelRef = useRef<HTMLDivElement | null>(null)
   const closeButtonRef = useRef<HTMLButtonElement | null>(null)
   const previouslyFocused = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data, error }) => {
+      if (!error) {
+        setSession(data.session)
+      }
+    }).catch(() => {
+      // Ignorar errores de sesión inválida (ej: refresh token not found)
+      // El usuario verá el botón de Registrarse, que es el comportamiento deseado
+    })
+  }, [])
 
   useEffect(() => {
     if (!consultant) return
@@ -117,19 +132,34 @@ export default function ConsultantSidePanel({ consultant, onClose }: Props) {
             </div>
             <p className="text-sm text-gray-200">{consultant.bio}</p>
 
-            <div className="mt-6">
-              <h4 className="text-sm font-medium">Contacto</h4>
-              {consultant.email ? (
-                <a
-                  href={`mailto:${consultant.email}`}
-                  className="inline-block mt-2 px-4 py-2 bg-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+            {session ? (
+              <div className="mt-6">
+                <h4 className="text-sm font-medium">Contacto</h4>
+                {consultant.email ? (
+                  <a
+                    href={`mailto:${consultant.email}`}
+                    className="inline-block mt-2 px-4 py-2 bg-green-600 rounded focus:outline-none focus:ring-2 focus:ring-green-400"
+                  >
+                    Contactar
+                  </a>
+                ) : (
+                  <div className="text-sm text-gray-400 mt-2">No hay email disponible</div>
+                )}
+              </div>
+            ) : (
+              <div className="mt-6 pt-4 border-t border-gray-700">
+                <h4 className="text-sm font-medium mb-2">¿Te interesa contactar?</h4>
+                <p className="text-sm text-gray-300 mb-4">
+                  Inicia sesión o regístrate para ver la información de contacto.
+                </p>
+                <Link
+                  href="/registro"
+                  className="block w-full text-center py-2 bg-blue-600 hover:bg-blue-700 text-white rounded font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
-                  Contactar
-                </a>
-              ) : (
-                <div className="text-sm text-gray-400 mt-2">No hay email disponible</div>
-              )}
-            </div>
+                  Registrarse
+                </Link>
+              </div>
+            )}
           </div>
 
           <div className="mt-4">
