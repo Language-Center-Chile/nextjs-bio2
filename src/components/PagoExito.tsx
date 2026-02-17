@@ -1,5 +1,6 @@
 import React from 'react'
 import { FaCheck } from "react-icons/fa";
+import Link from 'next/link';
 
 const PagoExito = () => {
   return (
@@ -55,20 +56,20 @@ const PagoExito = () => {
 
         {/* Action Buttons */}
         <div className="w-full flex flex-col gap-3">
-          <button className="w-full text-white h-14 rounded-xl font-bold text-base transition-all transform active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700">
+          <Link href="/perfil" className="w-full text-white h-14 rounded-xl font-bold text-base transition-all transform active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700">
             <span className="material-symbols-outlined !text-xl">dashboard</span>
             Ir a mi Panel
-          </button>
-          <button className="w-full bg-white/5 hover:bg-white/10 text-white h-14 rounded-xl font-bold text-base transition-all border border-white/10 flex items-center justify-center gap-2">
+          </Link>
+          <Link href="/marketplace" className="w-full bg-white/5 hover:bg-white/10 text-white h-14 rounded-xl font-bold text-base transition-all border border-white/10 flex items-center justify-center gap-2">
             <span className="material-symbols-outlined !text-xl">explore</span>
             Explorar Contenido
-          </button>
+          </Link>
         </div>
 
         {/* Support Link */}
         <p className="mt-12 text-white/30 text-sm text-center">
           ¿Tienes problemas con tu pago?
-          <a className="text-white/50 hover:text-primary underline transition-colors" href="#">Contactar Soporte</a>
+          <a className="text-white/50 hover:text-primary underline transition-colors" href="mailto:soporte@biodiversidad.cl">Contactar Soporte</a>
         </p>
       </div>
 
