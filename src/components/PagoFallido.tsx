@@ -1,5 +1,6 @@
 import React from 'react'
 import { MdError } from "react-icons/md";
+import Link from 'next/link';
 
 const PagoFallido = () => {
     return (
@@ -56,9 +57,9 @@ const PagoFallido = () => {
 
                 {/* Back Link */}
                 <div className="mt-8">
-                    <a className="text-white/40 hover:text-white text-sm font-medium underline underline-offset-4 transition-colors" href="#">
+                    <Link className="text-white/40 hover:text-white text-sm font-medium underline underline-offset-4 transition-colors" href="/">
                         Volver al inicio
-                    </a>
+                    </Link>
                 </div>
             </div>
 
