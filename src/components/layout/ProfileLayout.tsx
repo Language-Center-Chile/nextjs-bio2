@@ -47,7 +47,6 @@ export default function ProfileLayout({ children }: { children: ReactNode }) {
   const identities = (user.identities || []) as unknown as UserIdentity[]
   const identity = identities.length > 0 ? identities[0].identity_data || {} : {}
   const name = meta.name || meta.full_name || identity.name || identity.full_name || user.email?.split('@')[0] || 'Usuario'
-  // eslint-disable-next-line @next/next/no-img-element
   const avatar = meta.avatar_url || meta.picture || identity.avatar_url || identity.picture || null
 
   return (
@@ -73,7 +72,7 @@ export default function ProfileLayout({ children }: { children: ReactNode }) {
             <a href="/perfil" className="px-3 py-2 rounded hover:bg-neutral-800 text-gray-300">
               Información General
             </a>
-            <a href="/perfil/profesional" className="px-3 py-2 rounded hover:bg-neutral-800 text-gray-300 text-amber-400 font-medium">
+            <a href="/perfil/profesional" className="px-3 py-2 rounded hover:bg-neutral-800 text-gray-300 font-medium">
               Datos Profesionales
             </a>
             <a href="/perfil/seguridad" className="px-3 py-2 rounded hover:bg-neutral-800 text-gray-300">
