@@ -58,13 +58,20 @@ Repositorio base: `nextjs-bio2`
 │ │ │ ├── AuthButtons.tsx
 │ │ │ ├── Button.tsx
 │ │ │ ├── Card.tsx
-│ │ │ ├── Footer.tsx
 │ │ │ ├── UserAvatar.tsx
 │ │ │ └── ...
+│ │ ├── layout/                                          # Componentes de layout
+│ │ │ ├── ConditionalLayout.tsx                          # Layout condicional
+│ │ │ ├── Footer.tsx                                     # Pie de página
+│ │ │ ├── GuestBanner.tsx                                # Banner para invitados
+│ │ │ ├── MobileMenu.tsx                                 # Menú móvil
+│ │ │ ├── Navbar.tsx                                     # Barra de navegación
+│ │ │ ├── ProfileLayout.tsx                              # Layout de perfil
+│ │ │ ├── SidebarFilters.tsx                             # Filtros laterales
+│ │ │ └── UserMenu.tsx                                   # Menú de usuario
 │ │ ├── slider/                                          # Componente slider
 │ │ │ └── Slider.tsx
 │ │ ├── AuthProvider.tsx                                 # Contexto de autenticación
-│ │ ├── Navbar.tsx                                       # Navegación principal
 │ │ ├── CampanasSection.tsx                              # Sección de campañas
 │ │ ├── ConsultantGrid.tsx                               # Grid de consultores
 │ │ ├── EducacionGrid.tsx                                # Grid educativo
