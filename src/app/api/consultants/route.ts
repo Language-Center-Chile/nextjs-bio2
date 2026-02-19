@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await request.json()
-    const existingRes = await supabase.from('consultores').select('id').eq('user', userId).single()
+    const existingRes = await supabase.from('consultores').select('id').eq('usuario_id', userId).single()
     const existing = !existingRes.error ? existingRes.data : null
     const base = process.env.NEXTAUTH_URL || ''
     const secretParam = process.env.MODERATION_SECRET ? `&secret=${encodeURIComponent(process.env.MODERATION_SECRET)}` : ''
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: true, consultant: updateRes.data })
     }
 
-    const insertRes = await supabase.from('consultores').insert({ ...body, user: userId, isApproved: false }).select('*').single()
+    const insertRes = await supabase.from('consultores').insert({ ...body, usuario_id: userId, isApproved: false }).select('*').single()
     if (insertRes.error) return NextResponse.json({ error: 'Datos inválidos', details: insertRes.error.message }, { status: 400 })
     const consultant = insertRes.data
     await supabase.from('usuarios').update({ rol: 'consultant' }).eq('id', userId)

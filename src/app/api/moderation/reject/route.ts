@@ -36,9 +36,9 @@ export async function POST(request: NextRequest) {
       const del = await supabase.from('offers').delete().eq('id', id)
       if (del.error) return NextResponse.json({ error: 'Server error' }, { status: 500 })
     } else if (type === 'consultant') {
-      const sel = await supabase.from('consultores').select('user').eq('id', id).single()
+      const sel = await supabase.from('consultores').select('usuario_id').eq('id', id).single()
       if (sel.error) return NextResponse.json({ error: 'Not found' }, { status: 404 })
-      authorId = sel.data?.user ? String(sel.data.user) : null
+      authorId = sel.data?.usuario_id ? String(sel.data.usuario_id) : null
       const del = await supabase.from('consultores').delete().eq('id', id)
       if (del.error) return NextResponse.json({ error: 'Server error' }, { status: 500 })
     }
