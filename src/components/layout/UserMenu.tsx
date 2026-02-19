@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { HiChevronDown } from 'react-icons/hi';
 import { useRouter } from 'next/navigation';
-import UserAvatar from './ui/UserAvatar';
+import UserAvatar from '../ui/UserAvatar';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { Session } from '@supabase/supabase-js';

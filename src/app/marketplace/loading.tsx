@@ -1,5 +1,5 @@
 import HeroMarketplace from '@/components/ui/HeroMarketplace'
-import SidebarFilters from '@/components/ui/SidebarFilters'
+import SidebarFilters from '@/components/layout/SidebarFilters'
 
 export default function Loading() {
   return (

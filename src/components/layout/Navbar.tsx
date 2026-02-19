@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import NavbarLogo from "./ui/NavbarLogo";
-import NavbarLinks from "./ui/NavbarLinks";
+import NavbarLogo from "./NavbarLogo";
+import NavbarLinks from "./NavbarLinks";
 import NavbarLoginButton from "./NavbarLoginButton";
 import MobileMenu from "./MobileMenu";
 import { HiMenu, HiX } from "react-icons/hi";

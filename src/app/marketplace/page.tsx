@@ -1,6 +1,6 @@
 import HeroMarketplace from '@/components/ui/HeroMarketplace'
 import ProductGrid from '@/components/ui/ProductGrid'
-import SidebarFilters from '@/components/ui/SidebarFilters'
+import SidebarFilters from '@/components/layout/SidebarFilters'
 import dbConnect from '@/lib/db'
 import { supabase } from '@/lib/supabase'
 

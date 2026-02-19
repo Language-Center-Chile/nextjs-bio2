@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
-import ProfileLayout from '@/components/ProfileLayout'
+import ProfileLayout from '@/components/layout/ProfileLayout'
 
 export default function ProfessionalProfilePage() {
   return (
