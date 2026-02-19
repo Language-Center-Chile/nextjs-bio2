@@ -71,28 +71,20 @@ export async function POST(req: NextRequest) {
       const { data: existing, error: searchError } = await supabase
         .from('consultores')
         .select('id')
-        .eq('usuario_id', userId)
+        .eq('usuario_id', data.id) // Usar el ID retornado de la tabla usuarios
         .single()
       
       if (searchError && searchError.code !== 'PGRST116') { // PGRST116 es "no rows returned"
          console.error('Error searching consultant:', searchError)
       }
 
-      // Obtener imagen_perfil del usuario para copiarla a consultores
-      const { data: userData } = await supabase
-        .from('usuarios')
-        .select('imagen_perfil')
-        .eq('id', userId)
-        .single();
-
       // Datos a guardar en consultores
       const consultantData = {
-        usuario_id: userId,
+        usuario_id: data.id, // Usar el ID retornado de la tabla usuarios
         especialidad: especialidad || 'General',
-        experiencia: experiencia || bio || 'Perfil de consultor',
+        experiencia: experiencia || 'Perfil de consultor',
         cv_url: cv_url || '',
         certificaciones: certificaciones || '',
-        imagen: userData?.imagen_perfil || '', // ← copiar imagen
         verificado: false
       }
 
