@@ -145,7 +145,15 @@ export default function EditProfileView() {
         setPreview(dbAvatar)
         setInitialPreview(dbAvatar)
 
-        const role = dbUser?.tipo_usuario ?? base.role
+        let role = dbUser?.tipo_usuario ?? base.role
+        
+        // Normalize role from DB (consultor) to UI (Consultor)
+        if (role === 'consultor' || role === 'consultant') {
+          role = 'Consultor'
+        } else if (role === 'usuario_regular' || role === 'reclutador' || role === 'user') {
+          role = 'Usuario'
+        }
+
         const merged: FormState = {
           ...base,
           name: dbUser?.name ?? base.name,
