@@ -1,10 +1,11 @@
 import Cards from './ui/Cards';
+import Gestion from '../../public/assets/FUEGO.png'
 
 const NewsSection = () => {
   const news = [
   
       {
-      imageSrc: "https://images.unsplash.com/photo-1542601906990-b4d3fb7d5763?w=500&q=80",
+      imageSrc: "https://images.unsplash.com/photo-1643730484055-abc29f2de73c?q=80&w=1171",
       imageAlt: "Reforestación en la Patagonia",
       title: "Reforestación en la Patagonia",
       description: "Iniciativa para plantar 1 millón de árboles nativos en la región de Aysén.",
@@ -28,7 +29,7 @@ const NewsSection = () => {
       href: "/blog/guia-compostaje",
     },
       {
-      imageSrc: "https://images.unsplash.com/photo-1542601906990-b4d3fb7d5763?w=500&q=80",
+      imageSrc: Gestion,
       imageAlt: "Reforestación en la Patagonia",
       title: "Gestionando el fuego",
       description: "El texto presenta un análisis crítico sobre la gestión ambiental en Chile frente a la crisis de los incendios forestales",
@@ -45,7 +46,17 @@ const NewsSection = () => {
   ];
 
   return (
-    <Cards title="Noticias y Blog" news={news} blog={blog} />
+    <Cards
+      title="Noticias y Blog"
+      news={news}
+      blog={blog.map((item) => ({
+        ...item,
+        imageSrc:
+          typeof item.imageSrc === "string"
+            ? item.imageSrc
+            : item.imageSrc.src,
+      }))}
+    />
   );
 };
 
