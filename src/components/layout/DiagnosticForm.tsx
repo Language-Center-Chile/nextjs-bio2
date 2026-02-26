@@ -168,6 +168,7 @@ export default function DiagnosticForm() {
               </button>
               
               <button 
+                onClick={() => window.scrollTo({ top: document.getElementById('planes')?.offsetTop || 0, behavior: 'smooth' })}
                 type="button"
                 className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-8 rounded-full transition-colors text-center"
               >
