@@ -70,6 +70,8 @@ export default function UserMenu() {
 
   // Sin sesión → botón que navega a /login
   if (!activeSession) {
+    return null;
+    /*
     return (
       <button
         onClick={() => router.push('/login')}
@@ -78,6 +80,7 @@ export default function UserMenu() {
         Ingresar
       </button>
     );
+    */
   }
 
   const meta = activeSession.user?.user_metadata || {};

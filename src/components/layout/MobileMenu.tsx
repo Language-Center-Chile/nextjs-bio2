@@ -24,13 +24,13 @@ export default function MobileMenu({ onClose }: { onClose: () => void }) {
           {item.label}
         </Link>
       ))}
-      <Link
+      {/* <Link
         href="/login"
         onClick={onClose}
         className="bg-amber-100 text-neutral-800 px-4 py-2 rounded-md font-semibold text-sm hover:opacity-90 transition"
       >
         Ingresar
-      </Link>
+      </Link> */}
     </div>
   );
 }
