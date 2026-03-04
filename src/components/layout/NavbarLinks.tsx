@@ -1,20 +1,20 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { FaHome,FaUserTie,FaIdBadge,FaBook } from "react-icons/fa";
+import { FaHome,FaUserTie,FaIdBadge,FaBook,FaShoppingCart,FaHandsHelping } from "react-icons/fa";
 
 const navItems = [
   { label: "Inicio", href: "/", icon: <FaHome /> },
   // { label: "Marketplace", href: "/marketplace", icon: <FaShoppingCart /> },
-  // { label: "Consultores", href: "/consultores", icon: <FaUserTie /> },
+  { label: "Consultores", href: "/consultores", icon: <FaUserTie /> },
   // { label: "Educación", href: "/educacion", icon: <FaBook /> },
   // { label: "Campañas", href: "/campanas", icon: <FaHandsHelping /> },
-  // { label: "Membresías", href: "/membresias", icon: <FaIdBadge /> },
-  // { label: "Diagnóstico", href: "/diagnostico", icon: <FaBook /> },
-  { label: "¿Para quién?", href: "/#para-quien", icon: <FaUserTie /> },
-  { label: "Qué incluye", href: "/#que-incluye", icon: <FaBook /> },
-  { label: "Planes", href: "/#planes", icon: <FaIdBadge /> },
-  { label: "FAQ", href: "/#faq", icon: <FaBook /> },
+  { label: "Membresías", href: "/membresias", icon: <FaIdBadge /> },
+  { label: "Diagnóstico", href: "/landing", icon: <FaBook /> },
+  // { label: "¿Para quién?", href: "/#para-quien", icon: <FaUserTie /> },
+  // { label: "Qué incluye", href: "/#que-incluye", icon: <FaBook /> },
+  // { label: "Planes", href: "/#planes", icon: <FaIdBadge /> },
+  // { label: "FAQ", href: "/#faq", icon: <FaBook /> },
 ];
 
 export default function NavbarLinks() {
