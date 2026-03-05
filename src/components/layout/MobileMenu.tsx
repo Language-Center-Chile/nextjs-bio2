@@ -1,14 +1,13 @@
 import Link from "next/link";
 
 const navItems = [
-  { label: "Inicio", href: "/" },
-  { label: "Marketplace", href: "/marketplace" },
-  { label: "Consultores", href: "/consultores" },
-  { label: "Educación", href: "/educacion" },
-  { label: "Campañas", href: "/campanas" },
-  { label: "Información", href: "/informacion" },
-  { label: "Membresías", href: "/membresias" },
-  { label: "Contacto", href: "/contacto" },
+   { label: "Inicio", href: "/"},
+    // { label: "Marketplace", href: "/marketplace", icon: <FaShoppingCart /> },
+    { label: "Consultores", href: "/consultores" },
+    // { label: "Educación", href: "/educacion", icon: <FaBook /> },
+    // { label: "Campañas", href: "/campanas", icon: <FaHandsHelping /> },
+    { label: "Membresías", href: "/membresias" },
+    { label: "Diagnóstico", href: "/landing" },
 ];
 
 export default function MobileMenu({ onClose }: { onClose: () => void }) {
