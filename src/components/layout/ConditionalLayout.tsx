@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation'
 import Navbar from './Navbar'
 import HomeNavbar from './HomeNavbar'
+import LandingNavbar from './LandingNavbar'
 import Footer from './Footer'
 
 export default function ConditionalLayout({ children }: { children: React.ReactNode }) {
@@ -18,7 +19,15 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
 
   // Usar diferentes navbars según la ruta
   const isLandingPage = pathname === '/landing'
-  const NavbarComponent = isLandingPage ? Navbar : HomeNavbar
+  let NavbarComponent;
+  
+  if (isLandingPage) {
+    NavbarComponent = LandingNavbar;
+  } else if (pathname === '/') {
+    NavbarComponent = HomeNavbar;
+  } else {
+    NavbarComponent = Navbar;
+  }
 
   return (
     <>
