@@ -14,11 +14,15 @@ export default function Footer() {
           className="h-8  md:h-12 lg:h-16 w-auto"
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <p className="text-sm">&copy; 2025 Biodiversidad.cl. Todos los derechos reservados.</p>
-          <div className="flex justify-center gap-4 mt-9 md:mt-4">
+          <p className="text-sm">&copy; 2026 Biodiversidad.cl. Todos los derechos reservados.</p>
+          <div className="flex justify-center gap-4 mt-9 md:mt-1">
             <a href="/privacy" className="text-green-400 hover:text-green-500 transition">Política de Privacidad</a>
             <a href="/terms" className="text-green-400 hover:text-green-500 transition">Términos de Uso</a>
             <a href="/contact" className="text-green-400 hover:text-green-500 transition">Contacto</a>
+          </div>
+          <div className="mt-4 md:mt-1">
+
+            <p className="text-sm text-orange-500">Desarrollo web por Equipo Language Center Chile Tech.</p>
           </div>
         </div>
       </div>
