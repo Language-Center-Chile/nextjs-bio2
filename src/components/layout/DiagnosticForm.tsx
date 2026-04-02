@@ -48,7 +48,7 @@ export default function DiagnosticForm() {
     setError('');
 
     try {
-      const response = await fetch('/api/diagnostic', {
+      const response = await fetch('https://n8n.saxeventos.cl/webhook-test/178dabf4-8cf4-4af7-a9fd-a09811ee935e', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
