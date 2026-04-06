@@ -42,16 +42,51 @@ export default function DiagnosticForm() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const requiredFields: (keyof FormData)[] = [
+    'nombre_cargo',
+    'empresa',
+    'rut_empresa',
+    'rubro',
+    'email',
+    'telefono',
+    'region_comuna',
+    'num_trabajadores',
+    'fiscalizacion',
+    'necesidad',
+  ];
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setError('');
 
+    const emptyFields = requiredFields.filter(field => !formData[field].trim());
+    if (emptyFields.length > 0) {
+      setError('Por favor, completa todos los campos requeridos.');
+      return;
+    }
+
+    const phoneRegex = /^[0-9+\s-]+$/;
+    if (!phoneRegex.test(formData.telefono)) {
+      setError('El teléfono debe contener solo números.');
+      return;
+    }
+
+    if (!formData.link_drive.trim() && !formData.comentarios.trim()) {
+      setError('Debes ingresar un link de Drive o un comentario.');
+      return;
+    }
+
+    setIsSubmitting(true);
+
     try {
+      const dataToSend = Object.fromEntries(
+        Object.entries(formData).filter(([_, value]) => value.trim() !== '')
+      );
+
       const response = await fetch('https://n8n.saxeventos.cl/webhook-test/178dabf4-8cf4-4af7-a9fd-a09811ee935e', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       });
 
       if (!response.ok) {
@@ -73,7 +108,7 @@ export default function DiagnosticForm() {
         link_drive: '',
         comentarios: '',
       });
-    } catch (err) {
+    } catch {
       setError('Error al enviar el formulario. Intenta nuevamente.');
     } finally {
       setIsSubmitting(false);
