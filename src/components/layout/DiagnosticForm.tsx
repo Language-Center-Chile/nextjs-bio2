@@ -4,34 +4,28 @@ import { useState } from 'react';
 import { FaChevronDown } from 'react-icons/fa';
 
 interface FormData {
-  nombre_cargo: string;
-  empresa: string;
-  rut_empresa: string;
-  rubro: string;
-  email: string;
-  telefono: string;
-  region_comuna: string;
-  num_trabajadores: string;
-  fiscalizacion: string;
-  necesidad: string;
-  link_drive: string;
-  comentarios: string;
+  nombre_Completo: string,
+  rubro: string,
+  email: string,
+  telefono: string,
+  pais: string,
+  ciudad: string,
+  fiscalizacion: string,
+  necesidad: string,
+  comentarios: string,
 }
 
 export default function DiagnosticForm() {
   const [formData, setFormData] = useState<FormData>({
-    nombre_cargo: '',
-    empresa: '',
-    rut_empresa: '',
+    nombre_Completo: '',
     rubro: '',
     email: '',
     telefono: '',
-    region_comuna: '',
-    num_trabajadores: '',
+    pais: '',
+    ciudad: '',
     fiscalizacion: '',
     necesidad: '',
-    link_drive: '',
-    comentarios: '',
+    comentarios: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -43,16 +37,15 @@ export default function DiagnosticForm() {
   };
 
   const requiredFields: (keyof FormData)[] = [
-    'nombre_cargo',
-    'empresa',
-    'rut_empresa',
+    'nombre_Completo',
     'rubro',
     'email',
     'telefono',
-    'region_comuna',
-    'num_trabajadores',
+    'pais',
+    'ciudad',
     'fiscalizacion',
     'necesidad',
+    'comentarios',
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -65,14 +58,13 @@ export default function DiagnosticForm() {
       return;
     }
 
-    const phoneRegex = /^[0-9+\s-]+$/;
-    if (!phoneRegex.test(formData.telefono)) {
-      setError('El teléfono debe contener solo números.');
+    if (!formData.ciudad.trim() && !formData.comentarios.trim()) {
+      setError('Debes ingresar una ciudad o un comentario.');
       return;
     }
 
-    if (!formData.link_drive.trim() && !formData.comentarios.trim()) {
-      setError('Debes ingresar un link de Drive o un comentario.');
+    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
+      setError('Por favor, ingresa un correo electrónico válido.');
       return;
     }
 
@@ -83,7 +75,7 @@ export default function DiagnosticForm() {
         Object.entries(formData).filter(([_, value]) => value.trim() !== '')
       );
 
-      const response = await fetch('https://n8n.saxeventos.cl/webhook-test/178dabf4-8cf4-4af7-a9fd-a09811ee935e', {
+      const response = await fetch('https://languagecenterchile7.app.n8n.cloud/webhook/178dabf4-8cf4-4af7-a9fd-a09811ee935e', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSend),
@@ -95,19 +87,16 @@ export default function DiagnosticForm() {
 
       setSubmitted(true);
       setFormData({
-        nombre_cargo: '',
-        empresa: '',
-        rut_empresa: '',
-        rubro: '',
-        email: '',
-        telefono: '',
-        region_comuna: '',
-        num_trabajadores: '',
-        fiscalizacion: '',
-        necesidad: '',
-        link_drive: '',
-        comentarios: '',
-      });
+      nombre_Completo: '',
+      rubro: '',
+      email: '',
+      telefono: '',
+      pais: '',
+      ciudad: '',
+      fiscalizacion: '',
+      necesidad: '',
+      comentarios: ''
+    });
     } catch {
       setError('Error al enviar el formulario. Intenta nuevamente.');
     } finally {
@@ -115,11 +104,11 @@ export default function DiagnosticForm() {
     }
   };
   return (
-    <section  id="formulario" className="py-20 bg-[#0F1115] text-white flex justify-center">
+    <section id="formulario" className="py-20 bg-[#0F1115] text-white flex justify-center">
       <div className="container max-w-4xl px-6">
-        
+
         <div className="bg-[#0F1115] rounded-3xl p-8 md:p-12 border border-neutral-800 shadow-2xl">
-          
+
           {/* Header */}
           <div className="mb-10">
             <h2 className="text-3xl md:text-4xl font-bold mb-3 text-white">Comienza aquí (5 minutos)</h2>
@@ -130,48 +119,23 @@ export default function DiagnosticForm() {
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
-            
+
             {/* Row 1 */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm text-neutral-400">Nombre y cargo</label>
+                <label className="text-sm text-neutral-400">Nombre Completo</label>
                 <input
                   type="text"
-                  name="nombre_cargo"
-                  value={formData.nombre_cargo}
+                  name="nombre_Completo"
+                  value={formData.nombre_Completo}
                   onChange={handleChange}
-                  placeholder="Ej: Ana Pérez, Operaciones"
+                  placeholder="Ej: Ana Pérez"
                   className="w-full bg-[#1E1E1E] border border-neutral-800 rounded-lg px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm text-neutral-400">Empresa (Razón social)</label>
-                <input
-                  type="text"
-                  name="empresa"
-                  value={formData.empresa}
-                  onChange={handleChange}
-                  placeholder="Ej: Constructora XYZ SpA"
-                  className="w-full bg-[#1E1E1E] border border-neutral-800 rounded-lg px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
-                />
-              </div>
-            </div>
 
-            {/* Row 2 */}
-            <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm text-neutral-400">RUT empresa</label>
-                <input
-                  type="text"
-                  name="rut_empresa"
-                  value={formData.rut_empresa}
-                  onChange={handleChange}
-                  placeholder="Ej: 76.123.456-7"
-                  className="w-full bg-[#1E1E1E] border border-neutral-800 rounded-lg px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-sm text-neutral-400">Rubro / actividad principal</label>
+                <label className="text-sm text-neutral-400">Rubro</label>
                 <input
                   type="text"
                   name="rubro"
@@ -181,9 +145,10 @@ export default function DiagnosticForm() {
                   className="w-full bg-[#1E1E1E] border border-neutral-800 rounded-lg px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
                 />
               </div>
+
             </div>
 
-            {/* Row 3 */}
+            {/* Row 2 */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <label className="text-sm text-neutral-400">Email</label>
@@ -209,40 +174,35 @@ export default function DiagnosticForm() {
               </div>
             </div>
 
-            {/* Row 4 */}
+            {/* Row 3 */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label className="text-sm text-neutral-400">Región / comuna</label>
+                <label className="text-sm text-neutral-400">Pais</label>
                 <input
                   type="text"
-                  name="region_comuna"
-                  value={formData.region_comuna}
+                  name="pais"
+                  value={formData.pais}
                   onChange={handleChange}
-                  placeholder="Ej: RM, Santiago"
+                  placeholder="Ej: Chile"
                   className="w-full bg-[#1E1E1E] border border-neutral-800 rounded-lg px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
                 />
               </div>
-              <div className="space-y-2 relative">
-                <label className="text-sm text-neutral-400">N° de trabajadores</label>
-                <div className="relative">
-                  <select
-                    name="num_trabajadores"
-                    value={formData.num_trabajadores}
-                    onChange={handleChange}
-                    className="w-full bg-[#1E1E1E] border border-neutral-800 rounded-lg px-4 py-3 text-neutral-400 focus:text-white focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors appearance-none cursor-pointer"
-                  >
-                    <option value="">Selecciona</option>
-                    <option>1-10</option>
-                    <option>11-50</option>
-                    <option>51-200</option>
-                    <option>+200</option>
-                  </select>
-                  <FaChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none text-xs" />
-                </div>
+
+              <div className="space-y-2">
+                <label className="text-sm text-neutral-400">Ciudad</label>
+                <input
+                  type="text"
+                  name="ciudad"
+                  value={formData.ciudad}
+                  onChange={handleChange}
+                  placeholder="Ej: Santiago"
+                  className="w-full bg-[#1E1E1E] border border-neutral-800 rounded-lg px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
+                />
               </div>
+
             </div>
 
-            {/* Row 5 */}
+            {/* Row 4 */}
             <div className="grid md:grid-cols-2 gap-6">
               <div className="space-y-2 relative">
                 <label className="text-sm text-neutral-400">¿Fiscalización o requerimiento reciente?</label>
@@ -257,6 +217,7 @@ export default function DiagnosticForm() {
                     <option>Sí, tengo plazos</option>
                     <option>No, es preventivo</option>
                     <option>Auditoría interna</option>
+                    <option>Otro</option>
                   </select>
                   <FaChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none text-xs" />
                 </div>
@@ -275,6 +236,8 @@ export default function DiagnosticForm() {
                     <option>Licitar proyecto</option>
                     <option>Orden interno</option>
                     <option>Certificación</option>
+                    <option>Otro</option>
+
                   </select>
                   <FaChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-neutral-500 pointer-events-none text-xs" />
                 </div>
@@ -283,31 +246,15 @@ export default function DiagnosticForm() {
 
             {/* Row 6 */}
             <div className="space-y-2">
-              <label className="text-sm text-neutral-400">Link a carpeta (Drive) o referencias (opcional)</label>
-              <input
-                  type="text"
-                  name="link_drive"
-                  value={formData.link_drive}
-                  onChange={handleChange}
-                  placeholder="Ej: https://drive.google.com/..."
-                  className="w-full bg-[#1E1E1E] border border-neutral-800 rounded-lg px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
-                />
-              <p className="text-xs text-neutral-600 mt-1">
-                MVP: puedes pedir link a Drive ahora. Más adelante habilitas subidas directas.
-              </p>
-            </div>
-
-            {/* Row 7 */}
-            <div className="space-y-2">
               <label className="text-sm text-neutral-400">Comentarios</label>
               <textarea
-                  name="comentarios"
-                  value={formData.comentarios}
-                  onChange={handleChange}
-                  rows={4}
-                  placeholder="Cuéntanos tu contexto (breve)."
-                  className="w-full bg-[#1E1E1E] border border-neutral-800 rounded-lg px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors resize-none"
-                ></textarea>
+                name="comentarios"
+                value={formData.comentarios}
+                onChange={handleChange}
+                rows={4}
+                placeholder="Cuéntanos tu contexto (breve)."
+                className="w-full bg-[#1E1E1E] border border-neutral-800 rounded-lg px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors resize-none"
+              ></textarea>
             </div>
 
             {/* Actions */}
@@ -319,8 +266,8 @@ export default function DiagnosticForm() {
               >
                 {isSubmitting ? 'Enviando...' : 'Enviar y recibir recomendación de plan'}
               </button>
-              
-              <button 
+
+              <button
                 onClick={() => window.scrollTo({ top: document.getElementById('planes')?.offsetTop || 0, behavior: 'smooth' })}
                 type="button"
                 className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-8 rounded-full transition-colors text-center"
