@@ -3,7 +3,6 @@
 import { useState } from "react";
 import NavbarLogo from "./NavbarLogo";
 import LandingNavbarLinks from "./LandingNavbarLinks";
-import NavbarLoginButton from "./NavbarLoginButton";
 import MobileLandingMenu from "./MobileLandingMenu";
 import { HiMenu, HiX } from "react-icons/hi";
 
@@ -17,7 +16,6 @@ export default function LandingNavbar() {
       {/* Desktop nav */}
       <div className="hidden md:flex items-center gap-6">
         <LandingNavbarLinks />
-        <NavbarLoginButton />
       </div>
 
       {/* Mobile hamburger */}
