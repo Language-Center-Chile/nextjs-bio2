@@ -75,7 +75,7 @@ export default function DiagnosticForm() {
         Object.entries(formData).filter(([_, value]) => value.trim() !== '')
       );
 
-      const response = await fetch('https://languagecenterchile7.app.n8n.cloud/webhook/178dabf4-8cf4-4af7-a9fd-a09811ee935e', {
+      const response = await fetch('https://languagecenterchile7.app.n8n.cloud/webhook-test/178dabf4-8cf4-4af7-a9fd-a09811ee935e', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSend),

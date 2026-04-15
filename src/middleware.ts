@@ -20,7 +20,7 @@ export function middleware(request: NextRequest) {
   
   // Content Security Policy básico (Permitir WS en localhost para desarrollo)
   const isDev = process.env.NODE_ENV === 'development'
-  const connectSrc = "connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co https://n8n.saxeventos.cl" + (isDev ? " ws://127.0.0.1:* ws://localhost:*" : "") + ";"
+  const connectSrc = "connect-src 'self' https://*.supabase.co https://*.supabase.com wss://*.supabase.co [https://n8n.saxeventos.cl](https://n8n.saxeventos.cl) https://languagecenterchile7.app.n8n.cloud" + (isDev ? " ws://127.0.0.1:* ws://localhost:*" : "") + ";"
   
   response.headers.set(
     'Content-Security-Policy',
