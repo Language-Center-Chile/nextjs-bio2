@@ -262,17 +262,9 @@ export default function DiagnosticForm() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="bg-green-600 hover:bg-green-700 disabled:bg-green-800 text-white font-medium py-3 px-8 rounded-full transition-colors text-center"
-              >
-                {isSubmitting ? 'Enviando...' : 'Enviar y recibir recomendación de plan'}
-              </button>
-
-              <button
-                onClick={() => window.scrollTo({ top: document.getElementById('planes')?.offsetTop || 0, behavior: 'smooth' })}
-                type="button"
                 className="bg-orange-500 hover:bg-orange-600 text-white font-medium py-3 px-8 rounded-full transition-colors text-center"
               >
-                Ver planes
+                {isSubmitting ? 'Enviando...' : 'Enviar'}
               </button>
             </div>
 
