@@ -95,7 +95,7 @@ export default function DiagnosticTarget() {
                 <span className="font-bold text-neutral-400">Agenda 15 min:</span> si necesitas aclarar el plan antes de pagar.
               </p>
               <Link 
-                href="https://calendly.com/benoityasociados/asesoria-legal-ambiental-express?month=2026-03&date=2026-03-10" 
+                href="https://calendly.com/contacto-languagecenterchile/30min" 
                 className="block w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-5 rounded-xl transition-colors text-center shadow-lg hover:shadow-orange-500/20 text-lg"
               >
                 Quiero mi Diagnóstico Express de 30 minutos
