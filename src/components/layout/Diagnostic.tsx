@@ -42,14 +42,14 @@ export default function Diagnostic() {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
             <Link 
-              href="/landing" 
+              href="https://calendly.com/benoityasociados/asesoria-legal-ambiental-express?month=2026-03&date=2026-03-10" 
               className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-full transition-colors shadow-lg text-center flex items-center justify-center"
             >
               Quiero mi Diagnóstico Express de 30 minutos
             </Link>
             
             <Link 
-              href="https://calendly.com/contacto-languagecenterchile/30min" 
+               href="/landing"
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-8 rounded-full transition-colors shadow-lg text-center flex items-center justify-center"
             >
               Hablar con un consultor (30 min)
