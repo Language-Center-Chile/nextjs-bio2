@@ -28,8 +28,8 @@ export default function DiagnosticPricing() {
           <div className="bg-[#0E1A27] rounded-2xl p-8 border border-neutral-800 flex flex-col">
             <h3 className="text-xl font-bold mb-4">Starter</h3>
             <div className="flex items-baseline gap-1 mb-1">
-              <span className="text-sm font-bold text-neutral-500">CLP</span>
-              <span className="text-4xl font-bold">180.000</span>
+              <span className="text-sm font-bold text-neutral-500">UF</span>
+              <span className="text-4xl font-bold">4.50</span>
               <span className="text-sm text-neutral-500">/mes</span>
             </div>
             
@@ -40,7 +40,7 @@ export default function DiagnosticPricing() {
             <ul className="space-y-4 flex-grow">
               {[
                 "Monitoreo básico",
-                "1 usuario",
+                "Paquete hora",
                 "Reportes mensuales",
                 "Soporte por email"
               ].map((feature, i) => (
@@ -60,8 +60,8 @@ export default function DiagnosticPricing() {
             
             <h3 className="text-xl font-bold mb-4">Pro</h3>
             <div className="flex items-baseline gap-1 mb-1">
-              <span className="text-sm font-bold text-neutral-500">CLP</span>
-              <span className="text-4xl font-bold">490.000</span>
+              <span className="text-sm font-bold text-neutral-500">UF</span>
+              <span className="text-4xl font-bold">12.50</span>
               <span className="text-sm text-neutral-500">/mes</span>
             </div>
             
@@ -93,8 +93,8 @@ export default function DiagnosticPricing() {
           <div className="bg-[#0E1A27] rounded-2xl p-8 border border-neutral-800 flex flex-col">
             <h3 className="text-xl font-bold mb-4">Business</h3>
             <div className="flex items-baseline gap-1 mb-1">
-              <span className="text-sm font-bold text-neutral-500">CLP</span>
-              <span className="text-4xl font-bold">950.000</span>
+              <span className="text-sm font-bold text-neutral-500">UF</span>
+              <span className="text-4xl font-bold">19.99</span>
               <span className="text-sm text-neutral-500">/mes</span>
             </div>
             
@@ -104,8 +104,8 @@ export default function DiagnosticPricing() {
             
             <ul className="space-y-4 flex-grow">
               {[
-                "Monitoreo ilimitado",
-                "Usuarios ilimitados",
+                "Monitoreo renovable",
+                "Paquete hora",
                 "API personalizada",
                 "Consultoría experta",
                 "Soporte 24/7"
