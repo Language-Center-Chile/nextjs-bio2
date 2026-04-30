@@ -49,7 +49,8 @@ export default function Diagnostic() {
             </Link>
             
             <Link 
-               href="/landing"
+               href="/landing/#formulario" //anclar con formulario  
+
               className="bg-orange-500 hover:bg-orange-600 text-white font-bold py-4 px-8 rounded-full transition-colors shadow-lg text-center flex items-center justify-center"
             >
               Quiero más información
