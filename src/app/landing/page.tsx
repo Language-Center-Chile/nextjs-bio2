@@ -8,18 +8,21 @@ import DiagnosticForm from "@/components/layout/DiagnosticForm";
 export default function LandingPage() {
   const testimonials = [
     {
+      imageUrl: "https://i.pravatar.cc/96?img=47",
       name: "María González",
       role: "Jefa de Medio Ambiente",
       company: "Empresa de Ingeniería",
       text: "El diagnóstico nos permitió ordenar prioridades y avanzar con evidencias claras para el proyecto."
     },
     {
+      imageUrl: "https://i.pravatar.cc/96?img=12",
       name: "Carlos Rojas",
       role: "Gerente de Operaciones",
       company: "Servicios Industriales",
       text: "El proceso fue rápido y entendible. Recibimos recomendaciones accionables para reducir riesgos."
     },
     {
+      imageUrl: "https://i.pravatar.cc/96?img=32",
       name: "Valentina Soto",
       role: "Coordinadora de Sustentabilidad",
       company: "Constructora",
@@ -47,9 +50,19 @@ export default function LandingPage() {
             {testimonials.map((t) => (
               <div key={`${t.name}-${t.company}`} className="bg-[#0E1A27] rounded-2xl p-8 border border-neutral-800">
                 <p className="text-neutral-200 leading-relaxed mb-6">{t.text}</p>
-                <div className="text-sm">
-                  <div className="font-bold text-white">{t.name}</div>
-                  <div className="text-neutral-400">{t.role} · {t.company}</div>
+                <div className="flex items-center gap-4">
+                  <img
+                    src={t.imageUrl}
+                    alt={t.name}
+                    width={48}
+                    height={48}
+                    className="w-12 h-12 rounded-full object-cover border border-neutral-700"
+                    loading="lazy"
+                  />
+                  <div className="text-sm">
+                    <div className="font-bold text-white">{t.name}</div>
+                    <div className="text-neutral-400">{t.role} · {t.company}</div>
+                  </div>
                 </div>
               </div>
             ))}
