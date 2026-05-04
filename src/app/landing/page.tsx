@@ -2,6 +2,7 @@ import Diagnostic from "@/components/layout/Diagnostic";
 import DiagnosticTarget from "@/components/layout/DiagnosticTarget";
 import DiagnosticIncludes from "@/components/layout/DiagnosticIncludes";
 import DiagnosticPricing from "@/components/layout/DiagnosticPricing";
+import DiagnosticPartnership from "@/components/layout/DiagnosticPartnership";
 import DiagnosticForm from "@/components/layout/DiagnosticForm";
 
 export default function LandingPage() {
@@ -32,6 +33,7 @@ export default function LandingPage() {
       <DiagnosticTarget/>
       <DiagnosticIncludes/>
       <DiagnosticPricing/>
+      <DiagnosticPartnership/>
       <section className="py-20 bg-[#0F1115] text-white">
         <div className="container mx-auto px-6 max-w-6xl">
           <div className="mb-12 max-w-2xl">
