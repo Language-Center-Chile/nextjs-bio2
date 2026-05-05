@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { FaBook, FaIdBadge, FaUserTie, FaQuestionCircle } from "react-icons/fa";
 
 const landingNavItems = [
-  { label: "Inicio", href: "/" },
+  { label: "Inicio", href: "https://biodiversidad.cl" },
   { label: "¿Para quién?", href: "#para-quien", icon: <FaUserTie /> },
   { label: "¿Qué incluye?", href: "#que-incluye", icon: <FaBook /> },
   { label: "Planes", href: "#planes", icon: <FaIdBadge /> },
