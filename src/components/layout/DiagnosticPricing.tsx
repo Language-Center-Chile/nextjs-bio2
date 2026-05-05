@@ -4,6 +4,13 @@ import { useState } from 'react';
 import { FaCheckCircle, FaChevronDown, FaChevronUp } from 'react-icons/fa';
 
 export default function DiagnosticPricing() {
+  const starterCheckoutUrl =
+    'https://www.flow.cl/app/web/pagarBtnPago.php?token=v7526ff1ec2707bb0f0fd9414568d37b4a895be6';
+  const proCheckoutUrl =
+    'https://www.flow.cl/btn.php?token=e6397bc248704bcf10bec67e5b66e13e48f3c770';
+  const businessCheckoutUrl =
+    'https://www.flow.cl/btn.php?token=eacef2b537ca2e532165974b8290934744f75e88';
+
   return (
     <section className="py-20 bg-[#0F1115] text-white">
       <div  id="planes" className="container mx-auto px-6">
@@ -33,9 +40,14 @@ export default function DiagnosticPricing() {
               <span className="text-sm text-neutral-500">/mes</span>
             </div>
             
-            <button className="w-full mt-8 mb-8 py-3 rounded-lg bg-[#162231] border border-[#2A3B55] hover:bg-[#1c2b3e] transition-colors font-medium">
+            <a
+              href={starterCheckoutUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full mt-8 mb-8 py-3 rounded-lg bg-[#162231] border border-[#2A3B55] hover:bg-[#1c2b3e] transition-colors font-medium inline-block text-center"
+            >
               Comenzar Starter
-            </button>
+            </a>
             
             <ul className="space-y-4 flex-grow">
               {[
@@ -65,9 +77,14 @@ export default function DiagnosticPricing() {
               <span className="text-sm text-neutral-500">/mes</span>
             </div>
             
-            <button className="w-full mt-8 mb-8 py-3 rounded-lg bg-[#FF6A1A] hover:bg-[#e55a10] transition-colors font-bold text-white shadow-lg shadow-[#FF6A1A]/20">
+            <a
+              href={proCheckoutUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full mt-8 mb-8 py-3 rounded-lg bg-[#FF6A1A] hover:bg-[#e55a10] transition-colors font-bold text-white shadow-lg shadow-[#FF6A1A]/20 inline-block text-center"
+            >
               Obtener Pro
-            </button>
+            </a>
             
             <ul className="space-y-4 flex-grow">
               {[
@@ -98,9 +115,14 @@ export default function DiagnosticPricing() {
               <span className="text-sm text-neutral-500">/mes</span>
             </div>
             
-            <button className="w-full mt-8 mb-8 py-3 rounded-lg bg-[#162231] border border-[#2A3B55] hover:bg-[#1c2b3e] transition-colors font-medium">
+            <a
+              href={businessCheckoutUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full mt-8 mb-8 py-3 rounded-lg bg-[#162231] border border-[#2A3B55] hover:bg-[#1c2b3e] transition-colors font-medium inline-block text-center"
+            >
               Contactar Business
-            </button>
+            </a>
             
             <ul className="space-y-4 flex-grow">
               {[
