@@ -113,7 +113,7 @@ export default function DiagnosticForm() {
           <div className="mb-10">
             <h2 className="text-3xl md:text-4xl font-bold mb-3 text-white">Comienza aquí (5 minutos)</h2>
             <p className="text-neutral-400 text-lg">
-              Completa el formulario y te recomendamos el plan correcto. Puedes pagar y agendar al final.
+              Completa el formulario y te contactaremos.
             </p>
           </div>
 
