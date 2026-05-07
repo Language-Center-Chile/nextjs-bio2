@@ -75,7 +75,7 @@ export default function DiagnosticForm() {
         Object.entries(formData).filter(([_, value]) => value.trim() !== '')
       );
 
-      const response = await fetch('https://n8n-es8k0oos8kks4s8gc0gsw08w.72.62.165.86.sslip.io/webhook/178dabf4-8cf4-4af7-a9fd-a09811ee935e', {
+      const response = await fetch('/api/diagnostic', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSend),
