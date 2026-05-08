@@ -16,10 +16,10 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        body: {
+
           ...body,
           timestamp: new Date().toISOString()
-        }
+        
       })
     })
 
