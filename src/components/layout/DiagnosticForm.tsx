@@ -75,7 +75,7 @@ export default function DiagnosticForm() {
         Object.entries(formData).filter(([_, value]) => value.trim() !== '')
       );
 
-      const response = await fetch('https://n8n-es8k0oos8kks4s8gc0gsw08w.72.62.165.86.sslip.io/webhook/178dabf4-8cf4-4af7-a9fd-a09811ee935e', {
+      const response = await fetch('/api/diagnostic', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(dataToSend),
@@ -168,7 +168,7 @@ export default function DiagnosticForm() {
                   name="telefono"
                   value={formData.telefono}
                   onChange={handleChange}
-                  placeholder="+56 9 ..."
+                  placeholder="56 9 ..."
                   className="w-full bg-[#1E1E1E] border border-neutral-800 rounded-lg px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
                 />
               </div>
