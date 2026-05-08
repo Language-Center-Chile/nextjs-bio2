@@ -42,7 +42,7 @@ export default function Diagnostic() {
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 mb-12">
             <Link 
-              href="https://calendly.com/contacto-languagecenterchile/30min" 
+              href="https://calendar.app.google/i8Kws5UwZQraUUMF6" 
               className="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-8 rounded-full transition-colors shadow-lg text-center flex items-center justify-center"
             >
               Agendar mi Diagnóstico Express
