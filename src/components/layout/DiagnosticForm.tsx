@@ -168,7 +168,7 @@ export default function DiagnosticForm() {
                   name="telefono"
                   value={formData.telefono}
                   onChange={handleChange}
-                  placeholder="+56 9 ..."
+                  placeholder="56 9 ..."
                   className="w-full bg-[#1E1E1E] border border-neutral-800 rounded-lg px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-green-600 focus:ring-1 focus:ring-green-600 transition-colors"
                 />
               </div>
