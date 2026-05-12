@@ -70,7 +70,7 @@ export default function TermsOfUse() {
             <h2 className="text-xl font-semibold text-white">8. Contacto</h2>
             <p className="mt-2">
               Para consultas sobre estos Términos de Uso, contáctanos desde la página de{' '}
-              <a href="/contact" className="text-green-400 transition hover:text-green-500">
+              <a href="/landing#formulario" className="text-green-400 transition hover:text-green-500">
                 Contacto
               </a>
               .
