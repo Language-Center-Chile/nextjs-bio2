@@ -19,7 +19,7 @@ export default function Footer() {
         <div className="flex flex-col items-center text-center">
           <p className="text-sm">&copy; 2026 Biodiversidad.cl. Todos los derechos reservados.</p>
           <div className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-2 text-sm">
-            <a href="/privacy" className="text-green-400 hover:text-green-500 transition">
+            <a href="/landing/privacity" className="text-green-400 hover:text-green-500 transition">
               Política de Privacidad
             </a>
             <a href="/terms" className="text-green-400 hover:text-green-500 transition">

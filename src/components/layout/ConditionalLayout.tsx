@@ -18,7 +18,7 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
   }
 
   // Usar diferentes navbars según la ruta
-  const isLandingPage = pathname === '/landing'
+  const isLandingPage = pathname === '/landing' || pathname.startsWith('/landing/')
   let NavbarComponent;
   
   if (isLandingPage) {
