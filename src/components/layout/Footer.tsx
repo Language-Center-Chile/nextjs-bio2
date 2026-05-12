@@ -22,7 +22,7 @@ export default function Footer() {
             <a href="/landing/privacity" className="text-green-400 hover:text-green-500 transition">
               Política de Privacidad
             </a>
-            <a href="/terms" className="text-green-400 hover:text-green-500 transition">
+            <a href="/landing/terms" className="text-green-400 hover:text-green-500 transition">
               Términos de Uso
             </a>
             <a href="/contact" className="text-green-400 hover:text-green-500 transition">
