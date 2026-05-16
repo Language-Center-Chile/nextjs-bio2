@@ -16,7 +16,7 @@
     "@next-auth/supabase-adapter": "^0.2.1",
     "@supabase/supabase-js": "^2.48.1",
     "dotenv": "^17.2.1",
-    "next": "15.5.9",
+    "next": "^15.5.18",
     "next-auth": "^4.24.7",
     "nodemailer": "^7.0.11",
     "react": "^19.0.0",
