@@ -14,16 +14,37 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Biodiversidad - Plataforma Sustentable',
+  url: 'https://www.biodiversidad.cl',
+  logo: 'https://www.biodiversidad.cl/assets/LogotipoBlanco.png',
+  description: 'Conectamos personas con la biodiversidad. Una plataforma sustentable, abierta y humana para el ecosistema verde.',
+  sameAs: [
+    'https://www.facebook.com/biodiversidad',
+    'https://twitter.com/biodiversidad'
+  ]
+}
+
 export const metadata: Metadata = {
-  title: "Bio2 - Plataforma Sustentable",
+  title: "Biodiversidad - Plataforma Sustentable",
   description: "Conectamos personas con la biodiversidad. Una plataforma sustentable, abierta y humana para el ecosistema verde.",
   openGraph: {
-    title: "Bio2 - Plataforma Sustentable",
+    title: "Biodiversidad - Plataforma Sustentable",
     description: "Conectamos personas con la biodiversidad. Una plataforma sustentable, abierta y humana para el ecosistema verde.",
     url: "https://www.biodiversidad.cl",
-    siteName: "Bio2",
+    siteName: "Biodiversidad",
     locale: "es_CL",
     type: "website",
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Bio2 - Plataforma Sustentable',
+      }
+    ]
   },
   twitter: {
     card: "summary_large_image",
@@ -42,6 +63,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-neutral-950 text-white`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <ConditionalLayout>
           {children}
         </ConditionalLayout>
