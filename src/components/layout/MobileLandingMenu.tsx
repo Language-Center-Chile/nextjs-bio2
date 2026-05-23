@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 const landingNavItems = [
-  { label: "Inicio", href: "/" },
-  { label: "¿Para quién?", href: "#para-quien" },
-  { label: "¿Qué incluye?", href: "#que-incluye" },
-  { label: "Planes", href: "#planes" },
-  { label: "FAQ", href: "#faq" },
+  { label: "Inicio", href: "https://biodiversidad.cl" },
+  { label: "¿Para quién?", href: "/landing#para-quien" },
+  { label: "¿Qué incluye?", href: "/landing#que-incluye" },
+  { label: "Planes", href: "/landing#planes" },
+  { label: "FAQ", href: "/landing#faq" },
 ];
 
 export default function MobileLandingMenu({ onClose }: { onClose: () => void }) {
