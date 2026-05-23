@@ -4,7 +4,6 @@ import Image from "next/image";
 
 const logos = [
   { src: "/assets/partnerships/Logo-DM-OK.svg", alt: "Diagnostic" },
-  { src: "/assets/partnerships/Metro_de_Santiago_Version_Roja.jpg", alt: "Metro de Santiago" },
   { src: "/assets/partnerships/Watt's_2.webp", alt: "Watt's" },
   { src: "/assets/partnerships/efe.png", alt: "EFE" },
   { src: "/assets/partnerships/logo-mlp.svg", alt: "MLP" }
