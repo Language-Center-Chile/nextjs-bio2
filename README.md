@@ -37,6 +37,8 @@ Instala el proyecto en tu terminal.
 git clone https://github.com/Language-Center-Chile/nextjs-bio2.git
 
 cd nextjs-bio2
+
+npm ci
 ```
 ## Desplegar servidor local.
 
