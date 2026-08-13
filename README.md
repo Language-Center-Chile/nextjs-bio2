@@ -58,7 +58,14 @@ La base de datos se usa para:
 - Funcionalidades backend relacionadas
 
 No es necesario configurar manualmente la base de datos para desarrollo básico.
-Solo debes definir las variables de entorno correspondientes en el archivo `.env`.
+Crea un archivo `.env.local` (ignorado por Git) y define las variables públicas que consume la aplicación:
+
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
+
+Completa los valores localmente; no publiques credenciales ni claves reales en el repositorio.
 
 Más información sobre Supabase:
 👉 https://supabase.com/docs
