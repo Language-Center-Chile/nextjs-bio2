@@ -15,7 +15,7 @@ https://consultores.biodiversidad.cl/
 
 ### Core
 - Node.js
-- Next.js 16 (App Router, Turbopack)
+- Next.js 15.5.18 (App Router, Turbopack)
 - React 19
 - TypeScript
 
@@ -37,6 +37,8 @@ Instala el proyecto en tu terminal.
 git clone https://github.com/Language-Center-Chile/nextjs-bio2.git
 
 cd nextjs-bio2
+
+npm ci
 ```
 ## Desplegar servidor local.
 
@@ -44,12 +46,6 @@ Primero, corre el servidor de desarrollo:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 Abre [http://localhost:3000](http://localhost:3000) con tu navegador para ver el resultado.
 ## Base de datos
@@ -62,7 +58,14 @@ La base de datos se usa para:
 - Funcionalidades backend relacionadas
 
 No es necesario configurar manualmente la base de datos para desarrollo básico.
-Solo debes definir las variables de entorno correspondientes en el archivo `.env`.
+Crea un archivo `.env.local` (ignorado por Git) y define las variables públicas que consume la aplicación:
+
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+```
+
+Completa los valores localmente; no publiques credenciales ni claves reales en el repositorio.
 
 Más información sobre Supabase:
 👉 https://supabase.com/docs
